@@ -8,15 +8,7 @@ export const PLAN_LIMITS = {
   Pro: { variants: Infinity, activeCoupons: Infinity, timers: Infinity, design: true, maxSales: Infinity },
 };
 
-/**
- * Returns current plan name AND whether the merchant is still eligible for
- * a free trial (i.e., they have never activated a paid subscription before).
- * Shopify gives one trial per plan-name per shop lifetime, but we show/hide
- * the trial badge globally: if they've ever had ANY paid sub, hide all trials.
- */
-export async function getPlan(request) {
-  const { admin } = await authenticate.admin(request);
-  
+export async function getPlanWithAdmin(admin) {
   try {
     const response = await admin.graphql(`
       query getSubscriptions {
@@ -81,6 +73,17 @@ export async function getPlan(request) {
     console.error("Error fetching plan via GraphQL:", error);
     return { plan: "Free", trialDaysRemaining: 0, hasEverPurchased: false };
   }
+}
+
+/**
+ * Returns current plan name AND whether the merchant is still eligible for
+ * a free trial (i.e., they have never activated a paid subscription before).
+ * Shopify gives one trial per plan-name per shop lifetime, but we show/hide
+ * the trial badge globally: if they've ever had ANY paid sub, hide all trials.
+ */
+export async function getPlan(request) {
+  const { admin } = await authenticate.admin(request);
+  return getPlanWithAdmin(admin);
 }
 
 export async function getPlanUsage(request) {

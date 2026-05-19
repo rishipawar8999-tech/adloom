@@ -5,7 +5,7 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSubmit, useActionData, useLocation, useNavigate } from "@remix-run/react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { getPlanUsage } from "../models/billing.server";
+import { getPlanUsage, getPlan } from "../models/billing.server";
 
 export async function loader({ request }) {
   await authenticate.admin(request);
@@ -51,10 +51,20 @@ export async function action({ request }) {
   console.log(`[Billing] shop=${shop} plan=${plan} isTest=${isTest} returnUrl=${returnUrl}`);
 
   try {
+    const { trialDaysRemaining, hasEverPurchased } = await getPlan(request);
+    
+    let trialDays = undefined;
+    if (hasEverPurchased) {
+      trialDays = Math.max(0, trialDaysRemaining);
+    }
+
+    console.log(`[Billing Request] shop=${shop} plan=${plan} hasEverPurchased=${hasEverPurchased} trialDaysRemaining=${trialDaysRemaining} passing trialDays=${trialDays}`);
+
     const confirmation = await billing.request({
       plan,
       isTest,
       returnUrl,
+      ...(trialDays !== undefined ? { trialDays } : {}),
     });
 
     // confirmation.confirmationUrl is the Shopify-hosted page with the Approve button.

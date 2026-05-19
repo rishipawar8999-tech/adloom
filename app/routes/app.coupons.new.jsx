@@ -2,7 +2,6 @@ import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigation, useSubmit, useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { createCoupon } from "../models/coupon.server";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { checkLimit, checkDesignLimit } from "../models/billing.server";
 import { DirtyStateModal } from "../components/DirtyStateModal";
@@ -37,7 +36,8 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const { session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+  const { validateShopifyDiscount, createCoupon } = await import("../models/coupon.server");
   const allowed = await checkLimit(request, "coupons");
   if (!allowed) {
       return json({ errors: { base: "Limit reached" } }, { status: 403 });
@@ -59,6 +59,21 @@ export async function action({ request }) {
 
   if (Object.keys(errors).length > 0) {
     return json({ errors });
+  }
+
+  // Shopify Discount Validation
+  const forceSave = formData.get("forceSave") === "true";
+  const validation = await validateShopifyDiscount(couponCode, admin);
+  
+  if (!validation.ok) {
+    if (validation.isVerificationError && forceSave) {
+        // Skip validation and proceed
+    } else {
+        return json({ 
+            errors: { couponCode: validation.message }, 
+            isVerificationError: !!validation.isVerificationError 
+        }, { status: 400 });
+    }
   }
 
   const products = JSON.parse(productsStr || "[]");
@@ -138,7 +153,7 @@ export default function NewCouponPage() {
   });
 
   const tabs = [
-    { id: "coupon", content: "Coupon Details" },
+    { id: "coupon", content: "Offer Details" },
     { id: "style", content: "Visual Style" },
   ];
 
@@ -241,7 +256,8 @@ export default function NewCouponPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (force = false) => {
+    setIsDirty(false);
     // 1. Validate Required Fields
     if (!offerTitle.trim()) {
       shopify.toast.show("Offer Title is required", { isError: true });
@@ -285,7 +301,11 @@ export default function NewCouponPage() {
       selection: appliesTo,
     };
     formData.append("style", JSON.stringify(finalStyle));
-    formData.append("products", JSON.stringify(appliesTo)); // Keep for DB creation logic
+    formData.append("products", JSON.stringify(appliesTo));
+    
+    if (force === true) {
+        formData.append("forceSave", "true");
+    }
 
     submit(formData, { method: "post" });
   };
@@ -345,6 +365,7 @@ export default function NewCouponPage() {
               onChange={setCouponCode}
               autoComplete="off"
               placeholder="e.g. BYG1"
+              helpText="Enter an existing Shopify discount code. Adloom displays this code but does not create the discount in Shopify."
               error={actionData?.errors?.couponCode}
               monospaced
           />
@@ -361,7 +382,7 @@ export default function NewCouponPage() {
               value={priority}
               onChange={dirty(setPriority)}
               autoComplete="off"
-              helpText="Lower number = shown first (e.g. 1 shows before 10). Default is 0."
+              helpText="Lower numbers appear first. Example: 0 appears before 5."
               min={0}
           />
         </BlockStack>
@@ -398,6 +419,11 @@ export default function NewCouponPage() {
             ]}
           />
           
+          {appliesToType === "all" && (
+            <Banner tone="warning">
+              This offer will appear on all product pages. Use this only for store-wide campaigns.
+            </Banner>
+          )}
           <Box paddingBlockStart="200">
             {appliesToType === "products" && (
               <BlockStack gap="300">
@@ -441,7 +467,13 @@ export default function NewCouponPage() {
                 </InlineStack>
               </BlockStack>
             )}
-            {appliesToType === "all" && <Banner tone="info">This coupon will be shown on all product pages.</Banner>}
+            {appliesToType === "all" && (
+              <Box paddingBlockStart="200">
+                <Banner tone="warning">
+                  This offer will appear on all product pages. Use this only for store-wide campaigns.
+                </Banner>
+              </Box>
+            )}
           </Box>
         </BlockStack>
       </Card>
@@ -557,6 +589,15 @@ export default function NewCouponPage() {
     <Page title="Advanced Offer Builder" backAction={{ url: "/app/coupons" }}>
       <DirtyStateModal isDirty={isDirty} />
       <ActionErrorModal />
+      {actionData?.errors && (
+        <Box paddingBlockEnd="400">
+          <Banner tone="critical" title="Cannot save offer">
+             <List>
+               {Object.values(actionData.errors).map((err, i) => <List.Item key={i}>{err}</List.Item>)}
+             </List>
+          </Banner>
+        </Box>
+      )}
       {!allowed && <Banner tone="warning" title="Limit Reached" marginBottom="400">Upgrade to create more offers.</Banner>}
       
       <Layout>
@@ -628,6 +669,18 @@ export default function NewCouponPage() {
             >
               Create Offer
             </Button>
+            
+            {actionData?.isVerificationError && (
+               <Box paddingBlockStart="200">
+                 <Button
+                   variant="tertiary"
+                   fullWidth
+                   onClick={() => handleSubmit(true)}
+                 >
+                   Save anyway
+                 </Button>
+               </Box>
+            )}
           </BlockStack>
         </Layout.Section>
       </Layout>

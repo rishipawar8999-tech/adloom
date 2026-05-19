@@ -1,7 +1,7 @@
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 import { revertSale } from "../models/sale.server";
-import { PLAN_LIMITS, getPlan as fetchPlanFromShopify } from "../models/billing.server";
+import { PLAN_LIMITS, getPlanWithAdmin } from "../models/billing.server";
 
 export const action = async ({ request }) => {
   const { topic, shop, payload, admin } = await authenticate.webhook(request);
@@ -31,7 +31,7 @@ export const action = async ({ request }) => {
         }
     } else {
         // Fallback: Fetch from Shopify if payload is incomplete
-        const result = await fetchPlanFromShopify(request);
+        const result = await getPlanWithAdmin(admin);
         plan = result.plan || "Free";
     }
     

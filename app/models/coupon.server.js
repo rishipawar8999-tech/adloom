@@ -1,5 +1,77 @@
 import db from "../db.server";
 
+/**
+ * Validates if a discount code exists and is active in Shopify.
+ * @param {string} code - The code to check
+ * @param {object} admin - The Shopify Admin GraphQL client
+ * @returns {object} { ok: boolean, message?: string }
+ */
+export async function validateShopifyDiscount(code, admin) {
+  if (!code) return { ok: false, message: "Discount code is required." };
+
+  const query = `
+    query getDiscountCode($code: String!) {
+      codeDiscountNodeByCode(code: $code) {
+        id
+        codeDiscount {
+          ... on DiscountCodeBasic {
+            status
+            title
+          }
+          ... on DiscountCodeBuyXGetY {
+            status
+            title
+          }
+          ... on DiscountCodeFreeShipping {
+            status
+            title
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await admin.graphql(query, { variables: { code } });
+    const { data } = await response.json();
+    
+    const node = data?.codeDiscountNodeByCode;
+    
+    if (!node) {
+      // Try again with uppercase just in case
+      const upperResponse = await admin.graphql(query, { variables: { code: code.toUpperCase() } });
+      const { data: upperData } = await upperResponse.json();
+      if (!upperData?.codeDiscountNodeByCode) {
+        return { ok: false, message: "This discount code was not found in Shopify. Create it in Shopify first, then add it here." };
+      }
+      return { ok: true };
+    }
+
+
+    // Check status
+    const status = node.codeDiscount?.status;
+    if (status === "EXPIRED") {
+       return { ok: false, message: "This discount code has expired in Shopify." };
+    }
+    
+    if (status !== "ACTIVE" && status !== "SCHEDULED") {
+        return { ok: false, message: `This discount code is currently ${status.toLowerCase()} in Shopify.` };
+    }
+    
+    return { ok: true };
+  } catch (error) {
+    console.error("[CouponValidation] Internal Error:", error);
+    return { 
+        ok: false, 
+        isVerificationError: true,
+        message: "Adloom could not verify this code with Shopify right now. You can still save it, but please confirm the code exists in Shopify before showing it to customers." 
+    }; 
+  }
+}
+
+
+
+
 export async function getCoupons(shop) {
   return db.coupon.findMany({
     where: { shop },

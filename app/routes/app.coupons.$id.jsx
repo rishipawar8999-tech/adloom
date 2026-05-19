@@ -7,7 +7,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { getCoupon, updateCoupon } from "../models/coupon.server";
+import { getCoupon, updateCoupon, validateShopifyDiscount } from "../models/coupon.server";
 import { checkDesignLimit } from "../models/billing.server";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { DirtyStateModal } from "../components/DirtyStateModal";
@@ -70,7 +70,7 @@ export async function loader({ request, params }) {
 }
 
 export async function action({ request, params }) {
-  const { session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const formData = await request.formData();
 
   const offerTitle = formData.get("offerTitle");
@@ -88,6 +88,21 @@ export async function action({ request, params }) {
 
   if (Object.keys(errors).length > 0) {
     return json({ errors });
+  }
+
+  // Shopify Discount Validation
+  const forceSave = formData.get("forceSave") === "true";
+  const validation = await validateShopifyDiscount(couponCode, admin);
+  
+  if (!validation.ok) {
+    if (validation.isVerificationError && forceSave) {
+        // Skip validation and proceed
+    } else {
+        return json({ 
+            errors: { couponCode: validation.message }, 
+            isVerificationError: !!validation.isVerificationError 
+        }, { status: 400 });
+    }
   }
 
   const products = JSON.parse(productsStr || "[]");
@@ -194,7 +209,7 @@ export default function EditCouponPage() {
   });
 
   const tabs = [
-    { id: "coupon", content: "Coupon Details" },
+    { id: "coupon", content: "Offer Details" },
     { id: "style", content: "Visual Style" },
   ];
 
@@ -296,7 +311,7 @@ export default function EditCouponPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (force = false) => {
     if (!offerTitle.trim()) {
       shopify.toast.show("Offer Title is required", { isError: true });
       return;
@@ -314,6 +329,7 @@ export default function EditCouponPage() {
       return;
     }
 
+    setIsDirty(false);
     const startDateTime = `${startDate}T${startTime}:00`;
     const endDateTime = `${endDate}T${endTime}:00`;
 
@@ -321,10 +337,13 @@ export default function EditCouponPage() {
     formData.append("offerTitle", offerTitle);
     formData.append("couponCode", couponCode);
     formData.append("description", description);
-    formData.append("priority", priority);
     formData.append("startTime", startDateTime);
     formData.append("endTime", endDateTime);
     
+    if (force === true) {
+        formData.append("forceSave", "true");
+    }
+
     const appliesTo = {
       type: appliesToType,
       products: selectedProducts,
@@ -332,14 +351,14 @@ export default function EditCouponPage() {
       tags: selectedTags,
       vendors: selectedVendors,
     };
-
+    formData.append("products", JSON.stringify(appliesTo));
+    
     const finalStyle = {
       ...styleConfig,
       preset: stylePreset,
       selection: appliesTo,
     };
     formData.append("style", JSON.stringify(finalStyle));
-    formData.append("products", JSON.stringify(appliesTo));
 
     submit(formData, { method: "post" });
   };
@@ -385,16 +404,38 @@ export default function EditCouponPage() {
       <Card>
         <BlockStack gap="400">
           <Text as="h2" variant="headingSm">Offer Details</Text>
-          <TextField label="Offer title" value={offerTitle} onChange={dirty(setOfferTitle)} autoComplete="off" placeholder="e.g. Buy 1 Get 1 Free" />
-          <TextField label="Coupon code" value={couponCode} onChange={dirty(setCouponCode)} autoComplete="off" placeholder="e.g. BYG1" monospaced />
-          <TextField label="Description (optional)" value={description} onChange={dirty(setDescription)} autoComplete="off" multiline={2} />
+          <TextField
+              label="Offer title"
+              value={offerTitle}
+              onChange={dirty(setOfferTitle)}
+              autoComplete="off"
+              placeholder="e.g. Buy 1 Get 1 Free"
+              error={actionData?.errors?.offerTitle}
+          />
+          <TextField
+              label="Coupon code"
+              value={couponCode}
+              onChange={setCouponCode}
+              autoComplete="off"
+              placeholder="e.g. BYG1"
+              helpText="Enter an existing Shopify discount code. Adloom displays this code but does not create the discount in Shopify."
+              error={actionData?.errors?.couponCode}
+              monospaced
+          />
+          <TextField
+              label="Description (optional)"
+              value={description}
+              onChange={setDescription}
+              autoComplete="off"
+              multiline={2}
+          />
           <TextField
               label="Display Priority"
               type="number"
               value={priority}
               onChange={dirty(setPriority)}
               autoComplete="off"
-              helpText="Lower number = shown first (e.g. 1 shows before 10). Default is 0."
+              helpText="Lower numbers appear first. Example: 0 appears before 5."
               min={0}
           />
         </BlockStack>
@@ -430,6 +471,14 @@ export default function EditCouponPage() {
               { label: "Whole Store", value: "all" },
             ]}
           />
+
+          {appliesToType === "all" && (
+            <Box paddingBlockStart="200">
+              <Banner tone="warning">
+                This offer will appear on all product pages. Use this only for store-wide campaigns.
+              </Banner>
+            </Box>
+          )}
           <Box paddingBlockStart="200">
             {appliesToType === "products" && (
               <BlockStack gap="300">
@@ -559,9 +608,19 @@ export default function EditCouponPage() {
     <Page title="Edit Offer" backAction={{ url: "/app/coupons" }}>
       <DirtyStateModal isDirty={isDirty} />
       <ActionErrorModal />
+      {actionData?.errors && (
+        <Box paddingBlockEnd="400">
+          <Banner tone="critical" title="Cannot save offer">
+             <List>
+               {Object.values(actionData.errors).map((err, i) => <List.Item key={i}>{err}</List.Item>)}
+             </List>
+          </Banner>
+        </Box>
+      )}
       <Layout>
         <Layout.Section>
-          {actionData?.success && <Banner tone="success" title={actionData.message} marginBottom="400" />}
+          {actionData?.success && <Banner tone="success" title={actionData.message} onDismiss={() => {}} />}
+
           <Card padding="0">
             <Tabs tabs={tabs} selected={selectedTab} onSelect={setSelectedTab}>
               <Box padding="500">
@@ -618,7 +677,27 @@ export default function EditCouponPage() {
                 </div>
               </BlockStack>
             </Card>
-            <Button variant="primary" size="large" fullWidth onClick={handleSubmit} loading={isLoading}>Save Offer</Button>
+            <Button
+              variant="primary"
+              size="large"
+              fullWidth
+              onClick={() => handleSubmit()}
+              loading={isLoading}
+            >
+              Save Changes
+            </Button>
+            
+            {actionData?.isVerificationError && (
+               <Box paddingBlockStart="200">
+                 <Button
+                   variant="tertiary"
+                   fullWidth
+                   onClick={() => handleSubmit(true)}
+                 >
+                   Save anyway
+                 </Button>
+               </Box>
+            )}
           </BlockStack>
         </Layout.Section>
       </Layout>
