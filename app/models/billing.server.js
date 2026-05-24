@@ -29,12 +29,7 @@ export async function getPlan(request) {
     
     if (!activeSub) return "Free";
 
-    const name = activeSub.name.toLowerCase();
-    if (name.includes("pro")) return "Pro";
-    if (name.includes("growth")) return "Growth";
-    if (name.includes("basic")) return "Basic";
-    
-    return "Free";
+    return activeSub.name;
   } catch (error) {
     console.error("Error fetching plan via GraphQL:", error);
     return "Free";
@@ -45,7 +40,8 @@ export async function getPlanUsage(request) {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
   const plan = await getPlan(request);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.Free;
+  const basePlan = plan.replace(" Annual", "");
+  const limits = PLAN_LIMITS[basePlan] || PLAN_LIMITS.Free;
 
   // Count active resources
   const activeSales = await prisma.sale.count({

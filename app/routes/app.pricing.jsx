@@ -28,7 +28,7 @@ export async function action({ request }) {
   // Reverting to dynamic isTest to be safe. 
   // If shop is active dev store, it should be true. If it's a real store on a trial, false.
   // For now, let's trust the shop domain check or defaulting to false for production readiness.
-  const isTest = shop.includes("myshopify.com") || process.env.NODE_ENV !== "production"; 
+  const isTest = process.env.NODE_ENV !== "production" || process.env.SHOPIFY_IS_TEST_CHARGE === "true";
   const returnUrl = `${url.origin}/app/pricing?celebrate=true&plan=${plan}`;
 
   console.log(`[Billing Debug] SHOPIFY_APP_URL: ${process.env.SHOPIFY_APP_URL}`);

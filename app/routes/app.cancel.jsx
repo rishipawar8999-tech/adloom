@@ -5,9 +5,10 @@ import { useSubmit, useNavigation } from "@remix-run/react";
 
 export async function loader({ request }) {
   const { billing } = await authenticate.admin(request);
+  const isTest = process.env.NODE_ENV !== "production" || process.env.SHOPIFY_IS_TEST_CHARGE === "true";
   const subscription = await billing.require({
     plans: ["Basic", "Growth", "Pro", "Basic Annual", "Growth Annual", "Pro Annual"],
-    isTest: true,
+    isTest: isTest,
     onFailure: async () => null,
   });
 
@@ -20,16 +21,17 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   const { billing } = await authenticate.admin(request);
+  const isTest = process.env.NODE_ENV !== "production" || process.env.SHOPIFY_IS_TEST_CHARGE === "true";
   const subscription = await billing.require({
     plans: ["Basic", "Growth", "Pro", "Basic Annual", "Growth Annual", "Pro Annual"],
-    isTest: true,
+    isTest: isTest,
     onFailure: async () => null,
   });
 
   if (subscription) {
     await billing.cancel({
       subscriptionId: subscription.id,
-      isTest: true,
+      isTest: isTest,
       prorate: true,
     });
   }
