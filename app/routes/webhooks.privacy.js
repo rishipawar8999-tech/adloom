@@ -44,7 +44,10 @@ export const action = async ({ request }) => {
 
     return new Response("Webhook processed", { status: 200 });
   } catch (error) {
-    console.error(`[Privacy Webhook] Error: ${error.message}`);
+    if (error instanceof Response) {
+      return error;
+    }
+    console.error(`[Privacy Webhook] Error handling webhook:`, error);
     return new Response("Error processing webhook", { status: 500 });
   }
 };
