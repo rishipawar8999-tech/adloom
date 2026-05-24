@@ -66,7 +66,7 @@ function FaqItem({ question, answer }) {
 
 export default function HelpPage() {
   return (
-    <Page title="Help & Support" backAction={{ url: "/app" }}>
+    <Page title="Help and Support" backAction={{ url: "/app" }}>
       <Layout>
         <Layout.Section>
           <BlockStack gap="400">
