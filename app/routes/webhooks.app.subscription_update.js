@@ -4,7 +4,8 @@ import { revertSale } from "../models/sale.server";
 import { PLAN_LIMITS, getPlanWithAdmin } from "../models/billing.server";
 
 export const action = async ({ request }) => {
-  const { topic, shop, payload, admin } = await authenticate.webhook(request);
+  try {
+    const { topic, shop, payload, admin } = await authenticate.webhook(request);
 
   if (topic !== "APP_SUBSCRIPTIONS_UPDATE") {
     return new Response("Invalid topic", { status: 400 });
@@ -63,19 +64,39 @@ export const action = async ({ request }) => {
     
     const salesToDeactivate = activeSales.slice(0, excessCount);
 
+    let revertedCount = 0;
+    let failedCount = 0;
+
     for (const sale of salesToDeactivate) {
-        console.log(`[Billing] Deactivating sale ${sale.id} due to downgrade.`);
+        console.log(`[Billing] Deactivating sale ${sale.id} due to plan downgrade.`);
         try {
             await revertSale(sale.id, admin);
+            revertedCount++;
+            console.log(`[Billing] Successfully reverted sale ${sale.id}.`);
         } catch (err) {
-            console.error(`Failed to auto-revert sale ${sale.id}`, err);
+            failedCount++;
+            console.error(`[Billing] Sale revert failed for sale ${sale.id} (Shopify API error — will not retry): ${err?.message ?? err}`);
         }
+    }
+
+    if (failedCount > 0) {
+        console.warn(`[Billing] Reconciliation completed with errors for shop ${shop}: ${revertedCount} reverted, ${failedCount} failed. Returning 200 to prevent webhook retry storm.`);
+    } else {
+        console.log(`[Billing] Reconciliation complete for shop ${shop}: ${revertedCount} sale(s) reverted.`);
     }
 
     return new Response("Reconciled", { status: 200 });
 
   } catch (error) {
-    console.error("Error in subscription webhook:", error);
-    return new Response("Webhook failed", { status: 500 });
+    console.error(`[Webhook] Unexpected error processing APP_SUBSCRIPTIONS_UPDATE for shop ${shop}:`, error);
+    return new Response("Webhook processing failed", { status: 200 });
+  }
+
+  } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+    console.error(`[Webhook] Error handling webhook:`, error);
+    return new Response("Webhook error", { status: 500 });
   }
 };

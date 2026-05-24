@@ -37,8 +37,10 @@ export const action = async ({ request }) => {
 
     return new Response("ok", { status: 200 });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
     console.error(`[Webhook] Error handling webhook:`, error);
-    if (error instanceof Response) return error;
     return new Response("Webhook error", { status: 500 });
   }
 };
