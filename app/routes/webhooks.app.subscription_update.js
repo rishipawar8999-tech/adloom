@@ -4,7 +4,8 @@ import { revertSale } from "../models/sale.server";
 import { PLAN_LIMITS, getPlanWithAdmin } from "../models/billing.server";
 
 export const action = async ({ request }) => {
-  const { topic, shop, payload, admin } = await authenticate.webhook(request);
+  try {
+    const { topic, shop, payload, admin } = await authenticate.webhook(request);
 
   if (topic !== "APP_SUBSCRIPTIONS_UPDATE") {
     return new Response("Invalid topic", { status: 400 });
@@ -89,5 +90,13 @@ export const action = async ({ request }) => {
   } catch (error) {
     console.error(`[Webhook] Unexpected error processing APP_SUBSCRIPTIONS_UPDATE for shop ${shop}:`, error);
     return new Response("Webhook processing failed", { status: 200 });
+  }
+
+  } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+    console.error(`[Webhook] Error handling webhook:`, error);
+    return new Response("Webhook error", { status: 500 });
   }
 };
