@@ -20,7 +20,7 @@ const shopify = shopifyApp({
   distribution: AppDistribution.AppStore,
   billing: {
     "Basic": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
@@ -31,7 +31,7 @@ const shopify = shopifyApp({
       ],
     },
     "Basic Annual": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
@@ -42,7 +42,7 @@ const shopify = shopifyApp({
       ],
     },
     "Growth": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
@@ -53,7 +53,7 @@ const shopify = shopifyApp({
       ],
     },
     "Growth Annual": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
@@ -64,7 +64,7 @@ const shopify = shopifyApp({
       ],
     },
     "Pro": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
@@ -75,7 +75,7 @@ const shopify = shopifyApp({
       ],
     },
     "Pro Annual": {
-      replacementBehavior: BillingReplacementBehavior.Standard,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
       trialDays: 7,
       lineItems: [
         {
