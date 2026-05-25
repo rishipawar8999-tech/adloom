@@ -1,0 +1,431 @@
+Shopify Upsell App Market Report
+Competitive Intelligence, Gap Analysis & Product Roadmap for New Entrants
+Research Date: May 2026 | Audience: Founder + AI Dev T eam
+Executive Summary
+The Shopify upsell app market is a $50M+ ARR ecosystem  serving 5.5 million merchants on a platform
+processing $228B in GMV annually . The top apps are profitable but deeply flawed — merchants hate
+unpredictable revenue-share pricing, mediocre AI, and support that disappears when things break. There
+is a clear entry window for a new app that competes on transparent flat pricing, real AI
+personalization, and best-in-class setup experience . The market is not saturated — it's poorly served
+at the mid-market tier ($20K–$500K/year stores).
+Verdict:  Build now . The window is open. Compete on trust + intelligence, not just features.
+Key Findings
+2,063 upsell apps  exist in the Shopify App Store, yet the top 6 control the majority of revenue — this
+is a winner-takes-most market per niche
+Revenue share pricing  (charging % of upsell revenue on top of subscriptions) is the #1 merchant
+complaint — an opportunity to win purely on pricing model
+AI personalization  is mostly marketing copy — nearly every app is still using basic collaborative
+filtering, not real behavioral AI
+Analytics are shallow  — no app shows full L TV impact of upsells; merchants are flying blind
+Mid-market gap  — apps are tuned for Shopify Plus enterprise or tiny hobby stores; the $20K–
+$500K/yr store is underserved
+International merchants  are ignored — poor multi-currency , multi-language support is a recurring
+complaint across all major apps
+Section 1: Market Landscape
+The Platform Opportunity
+Shopify is not just big — it is accelerating:
+Metric 2025 Data
+Total Shopify merchants ~5.5 million globally
+US market share (ecommerce) ~30%
+Annual GMV $228B (23% YoY growth)
+Black Friday GMV 2025 $14.6B (record, +27% YoY)
+Apps installed per merchant (avg) 6
+Total app installations 25M+
+Developer revenue share (first $1M) 100% kept by developer
+At 6 apps per merchant average, a successful upsell app that captures 5% of all Shopify merchants would
+have 275,000 installs  — at even $15/month average, that's a $49.5M ARR business.
+The Upsell Category Structure
+Upsell apps span 5 distinct placement types — most top apps only do 2–3 of these well:
+Placement When it fires Impact on conversion
+Product Page Before cart Low-intent, highest volume
+Cart / Cart Drawer In-cart High intent, good timing
+Checkout (inline) During payment Shopify Plus mostly gated
+Post-Purchase (native) After order, before thank you Best 1-click UX
+Thank You Page After confirmation Lower intent, still meaningful
+Section 2: Competitor Deep Dives
+2.1 ReConvert (Upsell.com) — Market Leader
+Position:  Most installed upsell app, 40,000+ brands, full-funnel
+Attribute Detail
+App Store Rating 4.8/5 (2,841 reviews)
+Pricing $4.99/mo + 0.75% upsell revenue → up to $799.99/mo
+Est. ARR ~$9–12M
+Strength Full funnel, solid drag-and-drop builder, 30-day trial
+Weakness Revenue share = unpredictable bills, confusing tier system, limited multi-currency
+Merchant complaint pattern:  "I was making $10K in upsell revenue per month — the app was taking $75
+on top of my $49 plan. I had no idea my bill would be $124." This is a recurring Reddit and review thread
+topic.
+2.2 AfterSell — Post-Purchase Specialist
+Position:  Post-purchase + checkout upsell focused; strong brand
+Attribute Detail
+App Store Rating 4.8/5 (835 reviews)
+Pricing Free plan → $34.99/mo (post-purchase) + separate checkout plan
+Est. ARR ~$2.5–3.5M
+Strength Clean UI, good Shopify checkout extensibility integration
+Weakness Pricing based on total store orders (not just upsell orders), can get expensive fast
+AfterSell claims to have helped brands generate $350K+ in additional revenue and sell 80,000+ additional
+units. Their real edge is brand credibility and clean UX, not technology .
+2.3 Zipify OCU (OneClickUpsell) — High-Volume Play
+Position:  True one-click post-purchase upsell, targets DTC brands doing volume
+Attribute Detail
+App Store Rating 4.5/5 (516 reviews) — lowest of the big players
+Pricing $35/mo (up to $1K upsell rev) + 1% of upsell revenue
+Est. ARR ~$2–3M
+Strength True one-click (no re-checkout), used by major DTC brands
+Weakness Aggressive revenue share (1%), lowest rating in segment, only 3,000+ stores
+The 1% revenue share + subscription means a store doing $50K/month in upsell revenue pays
+$535/month  ($35 + $500). Merchants doing volume switch away fast.
+2.4 Bold Upsell (Bold Commerce) — The Oldest Player
+Position:  Founded 2012 — the "grandfather" of Shopify upsell apps
+Attribute Detail
+App Store Rating 4.6/5 (1,576 reviews)
+Pricing $9.99/mo (0-100 orders) → scales per order volume
+Est. ARR ~$2.5–3.5M
+Strength Longest track record, integrates with Bold Subscriptions
+Weakness Unresponsive support (consistent 1-star review theme), AJAX cart conflicts, technical debt
+The volume of negative reviews citing "support never responds"  and "app broke during Black Friday"
+is a significant brand liability . This is an incumbent losing trust.
+2.5 Honeycomb Upsell & Cross Sell
+Position:  Full-funnel with multi-step funnels; premium pricing
+Attribute Detail
+App Store Rating 4.8/5 (564 reviews)
+Pricing Starts at $49.99/mo — one of the most expensive
+Est. ARR ~$2–2.5M
+Strength "Claim $50M+ generated for brands", multi-step funnels
+Weakness Expensive, frequent glitches, limited compatibility with other apps
+Claims "commission-free" (no revenue share) which is a selling point — but the base price is the highest
+in the category .
+2.6 Rising Stars (Free/Freemium)
+Kaching Bundles  — 5.0/5, 4,304 reviews (highest review count in segment). Free to install. Focus:
+bundle quantity breaks. Shows that the bundle-upsell angle with freemium can dominate on volume.
+Selleasy  — 4.9/5, 2,354 reviews. Free to install. Simple product page + cart upsells. Loved by small
+stores for its zero-friction setup.
+Frequently Bought T ogether  — 4.9/5, 2,233 reviews. $19.99/mo flat. AI-based recommendation engine.
+Simple and ef fective.
+Section 3: Revenue & Business Model Analysis
+Pricing Models in Use
+The market has converged on problematic pricing patterns:
+Model Apps Using It Merchant Reaction
+Flat subscription Honeycomb, Frequently Bought Together Preferred, predictable
+Subscription + % upsell rev ReConvert, Zipify OCU #1 complaint
+Order-volume tiers Bold Upsell, AfterSell Confusing, unexpected jumps
+Freemium (feature-limited) Selleasy, Kaching, AOV.ai Love it; paid conversion low
+Revenue share is a tax on merchant success.  When an app charges $4.99 + 0.75% of upsell revenue,
+a successful store generating $20K/mo in upsell revenue now pays $154/month. That's $150/mo more
+than advertised. Merchants discover this post-launch and churn.
+Estimated Market Economics
+Tier Stores ARPU Monthly Revenue
+Top 6 apps combined ~70,000 paying ~$30/mo avg ~$2.1M/mo = $25M ARR
+Long tail (20-50 apps) ~30,000 paying ~$20/mo avg ~$600K/mo = $7.2M ARR
+Total addressable (upsell category) — — ~$32–50M ARR
+The market is growing. Shopify GMV grows 20-23% YoY → more merchants → more upsell revenue →
+more app spend.
+Section 4: Gap Analysis — Where to Enter
+Gap 1: Pricing Trust (HIGH IMPACT)
+The problem:  Every major revenue-share app has a review thread about surprise billing. Merchants do
+not understand what they will pay until the bill arrives.
+The gap:  No major upsell app of fers a simple, flat, all-inclusive price with no revenue share AND full
+features.
+Your entry:  Position as "No surprises. One price. Full features." — this single positioning can drive installs
+from merchants burned by competitors.
+Gap 2: Real AI Personalization (HIGH IMPACT)
+The problem:  When apps say "AI-powered," they mean collaborative filtering (people who bought X also
+bought Y). This is 2015-level recommendation tech. There is no session behavior analysis, no real-time
+intent scoring, no contextual awareness.
+The gap:  No upsell app adapts its of fer in real-time based on scroll depth, time-on-page, return visit
+behavior , or cart abandonment signals.
+Your entry:  Build a lightweight behavioral engine that adjusts of fer type, timing, and product based on
+what the current session looks like. Even basic session signals (new vs. returning, mobile vs. desktop,
+traffic source) improve of fer relevance by 20-30%.
+Gap 3: Analytics That Actually Help Merchants (MEDIUM-HIGH IMPACT)
+The problem:  Current apps show: "Y our upsell made $X this week." That's it. Merchants cannot see
+which upsells af fect L TV, which ones reduce return rates, or how dif ferent customer segments respond.
+The gap:  No upsell app has a real attribution + cohort dashboard.
+Your entry:  Show merchants: "Customers who accepted upsell X had 23% higher 90-day L TV" — this
+kind of insight makes you sticky and justifies premium pricing.
+Gap 4: SMB Autopilot Mode (HIGH IMPACT)
+The problem:  Most upsell apps require manual rule creation. Merchants have to pick which products to
+upsell with which other products. Small stores don't have merchandising teams.
+The gap:  Zero-config mode. Install → AI reads your catalog → creates first 5 upsell of fers within 60
+seconds → live.
+Your entry:  "Setup takes 90 seconds" is a powerful dif ferentiator . ReConvert's drag-and-drop builder is
+powerful but intimidating for non-technical merchants.
+Gap 5: Multi-Currency + International (MEDIUM IMPACT)
+The problem:  Most apps have partial or broken multi-currency support. Merchants selling to Europe,
+Australia, or Canada hit walls.
+The gap:  Post-purchase Shopify extensions of ficially don't support multi-currency (platform limitation). But
+cart and product page upsells can handle it — few apps do it cleanly .
+Your entry:  "Works in 130+ currencies out of the box" — target the 35% of Shopify merchants outside the
+US.
+Gap 6: Cross-App Compatibility (MEDIUM IMPACT)
+The problem:  AJAX cart conflicts are a constant issue (Bold Upsell documented this extensively). Apps
+that modify cart HTML  conflict with themes and other apps. Black Friday outages happen.
+The gap:  An app built exclusively on Shopify's native extensibility framework (no DOM manipulation
+hacks) will be more reliable.
+Your entry:  Market "Built 100% on Shopify Checkout Extensibility — no theme conflicts."
+Section 5: Product Roadmap — Feature Tiers
+Must Have (V1 — Launch Requirements)
+These are table stakes. Without these, you won't get past initial reviews.
+Feature Why Critical
+Post-purchase 1-click upsell Core value prop; customers don't re-enter payment info
+Checkout upsell (Shopify extensibility) Required to compete with AfterSell, ReConvert
+Cart drawer upsell Most merchants want in-cart placement
+Product page upsell widget "Frequently bought together" is expected by default
+AI-based product pairing (catalog analysis) Auto-suggest what to upsell with what
+Flat pricing, no revenue share Your #1 marketing differentiator
+14-day free trial Industry standard expectation
+Mobile-optimized templates 60%+ of Shopify traffic is mobile
+Basic analytics (clicks, accepts, revenue) Merchants need this on day 1
+One-click setup / quick start wizard "Works in 5 minutes" — must be true
+Live chat support Your initial retention weapon
+Shopify 2.0 / OS 2.0 compatible Required for modern themes
+Good to Have (V1.5 — Within 3 Months)
+These separate you from the pack and drive retention.
+Feature Why It Matters
+A/B testing for offers Merchants optimize; churns less; becomes habit
+Funnel builder (multi-step upsells) Compete with ReConvert's builder
+Thank you page customization Full-funnel coverage
+Conditional logic for offers Show X only if cart > $50, or customer from email campaign
+Segmentation (new vs. returning, device type) First step toward real personalization
+Revenue attribution dashboard Show merchants LTV impact
+Klaviyo / email platform integration Trigger upsells based on email segments
+Multi-currency display Capture international merchants
+Volume discount / bundle offers Compete with Kaching Bundles
+Offer templates library Reduce setup time, increase activation rate
+In-app analytics with cohort view Basic: "upsell buyers vs. non-buyers over 90 days"
+Add Later (V2 — 6–12 Months Post-Launch)
+These are your moat once you have data.
+Feature Why It's Worth Building
+Real behavioral AI (session intent scoring) Adapts offer timing + type in real-time
+Subscription upsell (upgrade one-time to recurring) Integrates with ReCharge/Loop; huge LTV unlock
+Post-purchase survey + upsell Capture feedback + present relevant offer
+Vertical-specific modes (supplements, beauty,
+apparel)Pre-configured upsell logic per niche
+Customer portal upsell Upsell at account/order management level
+Headless / custom storefront support Enterprise tier unlock
+API-first architecture Allow devs to build custom integrations
+AI copy generator for offer text Auto-write compelling upsell headlines
+WhatsApp / SMS post-purchase upsell Extend upsell window beyond checkout
+LTV prediction dashboard "This upsell cohort is worth $X more over 12
+months"
+Shopify Markets integration Full international commerce support
+Section 6: Market Entry Strategy
+Where to Win
+Target segment:  Shopify merchants doing $5K–$100K/month in revenue. These stores are:
+- Too big to use free apps that don't convert
+- Too small to af ford Shopify Plus (which unlocks more native checkout tools)
+- Underserved by apps designed for 7-figure DTC brands
+- Burned by surprise bills from revenue-share apps
+Price point:  $29–$49/month flat, no revenue share, unlimited upsell revenue. This beats:
+- ReConvert at $4.99 + 0.75% (catches up to $29 flat at ~$3,200/mo upsell revenue — easily hit by target
+segment)
+- Zipify at $35 + 1% (catches up at $1,400/mo upsell revenue — extremely low bar)
+- Honeycomb at $49.99 (match or beat at same price, more features, better support)
+Positioning Statement
+"The upsell app that doesn't punish you for growing. Flat price. Full features. Works in 90 seconds."
+Go-to-Market
+1. App Store optimization  — target keywords: "upsell app", "post purchase upsell", "one click upsell",
+"checkout upsell"
+2. Review velocity  — get 50+ reviews in first 60 days via beta group; this is the app store ranking signal
+3. Direct comparison pages  — build SEO pages targeting "ReConvert alternative", "Zipify alternative"
+(upsell-app alternatives have high commercial intent)
+4. YouTube / creator channel  — "I switched from ReConvert and saved $X/month" — tutorial content
+drives installs
+5. Shopify Partner program  — certified partner status adds trust badge
+6. Reddit presence  — genuine value in r/shopify and r/ShopifyeCommerce threads (no spam, just
+helpful answers)
+Section 7: AI Agent Developer Guide
+This section is designed to be shared directly with the development team or AI agents building the app.
+7.1 Tech Stack Recommendation
+Frontend:     React (Shopify App Bridge 4.x)
+Backend:      Node.js / Remix (Shopify's recommended stack)
+Database:     PostgreSQL (via Prisma ORM) or Supabase
+Auth:         Shopify OAuth (via @shopify/shopify-app-remix)
+Deployment:   Fly.io or Render (for cost efficiency at start)
+Queue:        BullMQ (for async order processing, analytics)
+Cache:        Redis
+Analytics DB: ClickHouse or Timescale (for AOV/LTV queries)
+Important:  Use the of ficial create-shopify-app  CLI with Remix template. Do not use custom Express
+servers for new apps — Shopify's tooling is optimized for Remix.
+7.2 Shopify Integration Points (Priority Order)
+1. Post-Purchase Checkout Extension
+- File: extensions/post-purchase/src/index.jsx
+- API: useAppBridge() , useExtensionApi()
+- Constraints:
+- Max 3 of fers per checkout
+- Only 1 post-purchase page
+- No multi-currency support (Shopify platform limitation)
+- Order held for 60 min (can configure shorter)
+- No duties support
+- Implementation: Must use @shopify/post-purchase-ui-extensions
+2. Checkout UI Extension (Checkout Upsell)
+- File: extensions/checkout-ui/src/Checkout.jsx
+- Placement targets: purchase.checkout.block.render , purchase.checkout.cart-line-item.render-
+after
+- Requires: Shopify Plus for some placements; standard for others
+- Implementation: @shopify/checkout-ui-extensions-react
+3. Theme App Extension (Cart + Product Page)
+- File: extensions/theme-app-extension/
+- Used for: Cart drawer upsell widget, product page "frequently bought together"
+- Must be: App Block (not script injection)
+- Liquid blocks + JavaScript
+4. Admin App (Merchant Dashboard)
+- Embedded in Shopify Admin via App Bridge
+- Routes: /app  (dashboard), /app/offers  (create/edit), /app/analytics
+- Use Shopify Polaris components for UI consistency
+7.3 Core Data Models
+-- Stores (one per Shopify merchant)
+stores {
+  id, shop_domain, access_token, plan, created_at, settings jsonb
+}
+-- Offers (the upsell configurations)
+offers {
+  id, store_id, name, type (post_purchase|checkout|cart|product_page),
+  trigger_product_ids[], upsell_product_id, 
+  conditions jsonb,  -- cart value, customer tag, etc.
+  discount_type, discount_value,
+  is_active, priority, created_at
+}
+-- Offer Events (every impression + decision)
+offer_events {
+  id, store_id, offer_id, order_id, customer_id,
+  event_type (shown|accepted|declined),
+  upsell_revenue, original_order_value,
+  session_data jsonb, -- device, source, customer_type
+  created_at
+}
+-- Analytics Aggregates (pre-computed for dashboard speed)
+analytics_daily {
+  store_id, offer_id, date,
+  impressions, accepts, declines,
+  total_upsell_revenue, avg_order_value_lift
+}
+7.4 Product Recommendation Engine (V1 — Catalog-Based AI)
+V1 does not need a complex ML  model. Use this approach:
+Step 1: On app install → fetch all products from Shopify Admin API
+Step 2: Group products by: collection, tags, vendor, price range
+Step 3: Build co-purchase matrix from last 90 days of order history
+Step 4: For each product, score potential upsells:
+  score = (co_purchase_freq * 0.5) + (same_collection * 0.3) + (price_delta_score * 0.2)
+Step 5: Surface top 3 scored upsells per product as default suggestions
+Step 6: Merchant can override suggestions
+APIs needed:
+- GET /admin/api/products.json  — full catalog
+- GET /admin/api/orders.json?fields=line_items,created_at  — order history (last 90 days)
+- POST /admin/api/graphql.json  — GraphQL  for ef ficient data fetching
+7.5 Post-Purchase Extension Flow (Critical Path)
+1. Order placed → Shopify calls your app's shouldRender endpoint
+   POST /api/offer-check
+   body: { checkoutToken, products, customer }
+   return: { render: true/false, offerData: {...} }
+2. If render: true → Shopify renders your post-purchase page
+   Your React extension shows the offer
+3. Customer clicks "Add to order"
+   → Shopify calls your acceptOffer endpoint
+   POST /api/offer-accept
+   → Your app calls Shopify Order Editing API to add line item
+   POST /admin/api/orders/{id}/edits.json
+4. Log the event → offer_events table
+5. Shopify continues to thank you page
+Edge cases to handle:
+- Customer declines → log event, Shopify proceeds normally
+- Network timeout → fail gracefully , show "of fer unavailable"
+- Inventory sold out between checkout and post-purchase of fer → check before rendering
+7.6 Webhooks to Implement
+Webhook Purpose
+orders/create Log order, trigger analytics update
+orders/updated Capture accepted post-purchase upsells
+app/uninstalled Clean up merchant data
+shop/update Sync shop currency/timezone
+products/create Update recommendation engine
+products/update Refresh product data
+customers/create Build customer profile for personalization
+7.7 Analytics Dashboard Requirements
+Build these queries from day 1 — merchants will check this daily:
+Metric Query Approach
+Total upsell revenue (today/7d/30d) SUM(upsell_revenue) from offer_events WHERE event_type='accepted'
+Offer acceptance rate COUNT(accepted) / COUNT(shown) per offer
+AOV lift AVG(order_value + upsell_revenue) vs AVG(order_value) control
+Best performing offers Rank offers by revenue generated
+Revenue by placement Group by offer.type
+Device breakdown Group by session_data->>'device'
+New vs. returning Group by session_data->>'customer_type'
+7.8 Performance Requirements
+Post-purchase extensions have strict performance budgets:
+shouldRender  endpoint: must respond in < 500ms  or Shopify skips the of fer
+Extension bundle size: < 50KB (Shopify limit)
+No blocking external API calls in the render path
+Use edge caching for of fer configs (Redis with 60s TTL)
+Pre-compute recommendation data during of f-peak; don't compute at render time
+7.9 App Store Compliance Checklist
+Before submission:
+[ ] GDPR-compliant data handling (customer data deletion on request)
+[ ] No PII stored beyond what Shopify allows
+[ ] App Bridge 4.x (not legacy 3.x)
+[ ] All app extensions use of ficial APIs (no DOM manipulation)
+[ ] Performance tested on 1,000+ product catalogs
+[ ] Works with Dawn theme (Shopify's default) out of the box
+[ ] Mobile-responsive at 375px, 414px, 768px viewports
+[ ] Error states handled gracefully (no white screen if of fer fails)
+[ ] Rate limiting handled (Shopify: 2 req/sec REST ; 50 points/sec GraphQL)
+[ ] app/uninstalled  webhook clears all merchant data
+7.10 V1 Scope — Minimum Viable App
+Build these in order . Ship when #1-6 work perfectly:
+1. Merchant OAuth + onboarding  (install → connected in 2 clicks)
+2. Product catalog sync + basic recommendation engine
+3. Offer creation UI  (pick trigger product, pick upsell product, set discount)
+4. Post-purchase extension  (renders of fer, accepts payment-free addition)
+5. Cart upsell widget  (theme extension, app block)
+6. Basic dashboard  (revenue, acceptance rate, top of fers)
+7. Billing setup  (Shopify Billing API, flat subscription)
+Do NOT build before V1 ships:  A/B testing, funnel builder , advanced analytics, AI behavioral engine,
+multi-step funnels. These are V1.5+.
+Section 8: Risks & Mitigation
+Risk Likelihood Impact Mitigation
+Shopify changes post-purchase
+APIMedium High Follow official changelog, build on extensibility
+framework (not hacks)
+Race to zero pricing from
+freemium competitorsHigh Medium Win on reliability + analytics, not price alone
+Low review velocity at launch High High Run private beta with 30+ merchants pre-launch;
+get reviews in week 1
+App conflicts with popular
+themesMedium High Test on Dawn, Debut, Refresh, Impulse before
+launch
+Shopify Plus gating (checkout
+upsell)High Medium Make post-purchase + cart flawless for non-Plus;
+Plus tier as upgrade path
+Incumbent response (price
+drops, feature copies)Medium Medium Your moat is support + pricing model trust;
+incumbents can't restructure overnight
+Methodology
+Sources used:
+- Shopify App Store — direct scraping of ratings, review counts, pricing tiers for 15+ apps
+- Competitor websites (ReConvert, AfterSell, Zipify , Bold Commerce, Honeycomb, Candy Rack)
+- Reddit r/shopify , r/ShopifyeCommerce — merchant pain points and app discussions (2024–2026
+threads)
+- Shopify developer documentation (checkout extensibility , post-purchase API, webhooks)
+- Industry analysis sites (upsella.com, txtcart.ai, launchtip.com, plerdy .com)
+- Shopify platform statistics (chargeflow .io, demandsage.com, craftberry .co — cross-referenced)
+Revenue estimates  are derived calculations based on: (estimated install count × estimated avg plan
+price). These are informed estimates, not audited figures. Actual ARR will dif fer.
+Confidence tiers:
+- Market size stats: High (multiple corroborating sources)
+- App ratings/reviews: High (direct App Store observation)
+- ARR estimates: Medium (calculated, not disclosed by companies)
+- Merchant pain points: High (triangulated across 5+ community sources)
+References
+1 Shopify Statistics 2026 — chargeflow .io — https://www .chargeflow .io/blog/shopify-statistics
+2 Shopify App Store — Upsell category — https://apps.shopify .com/search?q=upsell
+3 ReConvert App Store listing — https://apps.shopify .com/reconvert-upsell-cross-sell
+4 AfterSell App Store listing — https://apps.shopify .com/aftersell
+5 Zipify OCU pricing — https://zipify .com/apps/ocu/
+6 Bold Upsell pricing — https://boldcommerce.com/shopify/bold-upsell
+7 Shopify Dev Docs — Post-purchase product of fers —
+https://shopify .dev/docs/apps/build/checkout/product-of fers
+8 Shopify revenue share policy — https://shopify .dev/docs/apps/launch/distribution/revenue-share
+9 Shopify checkout limitations — https://help.rebuyengine.com/en/articles/6706477-shopify-s-post-
+purchase-of fer-considerations-limitations
+10 App pricing complaints — Shopify Community — https://community .shopify .com/t/the-price-of-apps-is-
+completely-out-of-control/419098
+11 Top 7 upsell apps tested — txtcart.ai — https://txtcart.ai/blog/top-upsell-apps-on-shopify-tested/
+12 Shopify GMV statistics — redstagfulfillment.com — https://redstagfulfillment.com/shopify-statistics/

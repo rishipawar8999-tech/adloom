@@ -6,6 +6,39 @@ import { useLoaderData, useSubmit, useActionData, useLocation, useNavigate } fro
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { getPlanUsage, getPlan } from "../models/billing.server";
+import { Tooltip } from "@shopify/polaris";
+
+const TIERS = { "Free": 0, "Basic": 1, "Growth": 2, "Pro": 3 };
+function getTier(planName) {
+  if (!planName) return TIERS.Free;
+  if (planName.includes("Pro")) return TIERS.Pro;
+  if (planName.includes("Growth")) return TIERS.Growth;
+  if (planName.includes("Basic")) return TIERS.Basic;
+  return TIERS.Free;
+}
+function isAnnual(planName) {
+  return planName ? planName.includes("Annual") : false;
+}
+function validateTransition(current, target) {
+  if (current === "Free" || !current) return { valid: true };
+  if (current === target) return { valid: false, reason: "Active Plan" };
+
+  const currentTier = getTier(current);
+  const targetTier = getTier(target);
+  const currentAnn = isAnnual(current);
+  const targetAnn = isAnnual(target);
+
+  if (currentAnn && !targetAnn) {
+    return { valid: false, reason: "Cannot switch directly from Annual to Monthly." };
+  }
+  if (currentAnn && targetAnn && targetTier < currentTier) {
+    return { valid: false, reason: "Cannot downgrade an Annual plan directly." };
+  }
+  if (!currentAnn && !targetAnn && targetTier < currentTier) {
+    return { valid: false, reason: "Cannot downgrade a Monthly plan directly." };
+  }
+  return { valid: true };
+}
 
 export async function loader({ request }) {
   await authenticate.admin(request);
@@ -30,6 +63,18 @@ export async function action({ request }) {
   if (!plan || plan === "Free") {
     return redirect("/app/cancel");
   }
+
+  const currentPlan = (await getPlan(request)).plan;
+  const transition = validateTransition(currentPlan, plan);
+  if (!transition.valid && transition.reason !== "Active Plan") {
+    return json({ 
+      error: "Invalid Plan Transition", 
+      details: "Downgrades and Annual-to-Monthly switches are not supported directly. To move to a lower plan or switch from Annual to Monthly, cancel your current subscription first, then choose a new plan. Cancelling moves your account to the Free plan and may limit creation of new sales, coupons, or timers."
+    }, { status: 400 });
+  }
+
+  console.log(`[Billing Debug] Action started for shop: ${shop}`);
+  console.log(`[Billing Debug] Form data plan: ${plan}`);
 
   const url = new URL(request.url);
   // isTest: true = no real charge (safe for development stores & smoke testing)
@@ -237,6 +282,8 @@ function PlanCard({ plan, currentPlan }) {
   const submit = useSubmit();
   const navigate = useNavigate();
   const isCurrent = plan.id === currentPlan;
+  const transition = validateTransition(currentPlan, plan.id);
+  const isDisabled = isCurrent || !transition.valid;
   
   const handleSelect = () => {
     // Free plan doesn't go through billing.request — navigate to cancel instead.
@@ -296,16 +343,33 @@ function PlanCard({ plan, currentPlan }) {
           {plan.trial && (
              <Text as="p" variant="bodyXs" alignment="center" tone="subdued" fontWeight="semibold">✨ {plan.trial}</Text>
           )}
-          <Button
-            variant={plan.highlighted ? "primary" : "secondary"}
-            fullWidth
-            disabled={isCurrent}
-            onClick={handleSelect}
-            size="large"
-            className={plan.highlighted ? "premium-button-growth" : ""}
-          >
-            {isCurrent ? "Current Plan" : plan.buttonLabel}
-          </Button>
+          {!transition.valid && !isCurrent ? (
+            <Tooltip content={transition.reason} preferredPosition="above">
+              <div>
+                <Button
+                  variant={plan.highlighted ? "primary" : "secondary"}
+                  fullWidth
+                  disabled={isDisabled}
+                  onClick={handleSelect}
+                  size="large"
+                  className={plan.highlighted ? "premium-button-growth" : ""}
+                >
+                  {isCurrent ? "Current Plan" : plan.buttonLabel}
+                </Button>
+              </div>
+            </Tooltip>
+          ) : (
+            <Button
+              variant={plan.highlighted ? "primary" : "secondary"}
+              fullWidth
+              disabled={isDisabled}
+              onClick={handleSelect}
+              size="large"
+              className={plan.highlighted ? "premium-button-growth" : ""}
+            >
+              {isCurrent ? "Current Plan" : plan.buttonLabel}
+            </Button>
+          )}
         </BlockStack>
       </Box>
     </div>

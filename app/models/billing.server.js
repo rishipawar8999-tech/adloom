@@ -46,10 +46,7 @@ export async function getPlanWithAdmin(admin) {
     let currentPeriodEnd = null;
 
     if (activeSub) {
-      const name = activeSub.name.toLowerCase();
-      if (name.includes("pro")) plan = "Pro";
-      else if (name.includes("growth")) plan = "Growth";
-      else if (name.includes("basic")) plan = "Basic";
+      plan = activeSub.name;
 
       activeFrom = activeSub.createdAt;
       currentPeriodEnd = activeSub.currentPeriodEnd;
@@ -90,7 +87,8 @@ export async function getPlanUsage(request) {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
   const { plan, trialDaysRemaining, hasEverPurchased, activeFrom, currentPeriodEnd } = await getPlan(request);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.Free;
+  const basePlan = plan.replace(" Annual", "");
+  const limits = PLAN_LIMITS[basePlan] || PLAN_LIMITS.Free;
 
   // Get total unique variants across ALL active sales
   const activeSales = await prisma.sale.findMany({
