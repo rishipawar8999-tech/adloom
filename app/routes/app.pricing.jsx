@@ -523,7 +523,6 @@ export default function PricingPage() {
         "Unlimited Timers",
         "Custom Timer Designs",
         "Priority Support",
-        "Advanced Analytics",
       ],
       description: "For established brands.",
       trial: !hasEverPurchased

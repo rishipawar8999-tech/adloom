@@ -437,9 +437,9 @@ export default function EditSale() {
           },
           disabled: !shopDomain,
         },
-        ...(sale.status === "COMPLETED" || sale.status === "PENDING"
+        ...(sale.status === "PENDING"
           ? [{
-              content: "Reactivate",
+              content: "Activate Now",
               onAction: handleReactivate,
               loading: isLoading,
             }]

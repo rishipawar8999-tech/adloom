@@ -14,9 +14,20 @@ export const action = async ({ request }) => {
   console.log(`[Webhook] Received APP_SUBSCRIPTIONS_UPDATE for ${shop}`);
 
   if (!admin) {
-    console.error("No admin client available in webhook. Cannot reconcile sales.");
-    // We strictly need admin to run mutations (revertSale). 
-    return new Response("No admin client", { status: 200 });
+    console.log(`[Webhook] No admin client available for ${shop}. Falling back to offline token.`);
+    try {
+      const { unauthenticated } = await import("../shopify.server");
+      const offlineSession = await unauthenticated.admin(shop);
+      admin = offlineSession.admin;
+    } catch (e) {
+      console.error(`[Webhook] Failed to load offline admin for ${shop}:`, e);
+      return new Response("No admin client", { status: 200 });
+    }
+    
+    if (!admin) {
+      console.error(`[Webhook] Still no admin client after offline token attempt for ${shop}.`);
+      return new Response("No admin client", { status: 200 });
+    }
   }
 
   try {

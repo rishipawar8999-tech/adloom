@@ -379,9 +379,14 @@ export async function applySale(saleId, admin) {
           compareAtPrice: item.newCompareAt
         }));
 
-        await admin.graphql(mutation, {
+        const response = await admin.graphql(mutation, {
           variables: { productId, variants },
         });
+        const resData = await response.json();
+        const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
+        if (userErrors.length > 0) {
+            console.error(`Bulk update user errors for product ${productId}:`, userErrors);
+        }
         
         // Tag mutations
         if (sale.tagsToAdd) {
@@ -406,8 +411,8 @@ export async function applySale(saleId, admin) {
     // Optimization: Use $transaction for DB updates
     await prisma.$transaction(
         itemsToUpdate.map(update => 
-            prisma.saleItem.update({
-                where: { id: update.id },
+            prisma.saleItem.updateMany({
+                where: { id: update.id, originalPrice: 0 },
                 data: { 
                   originalPrice: update.originalPrice,
                   originalCompareAt: update.originalCompareAt
@@ -571,12 +576,17 @@ export async function revertSale(saleId, admin) {
           }
         `;
 
-        await admin.graphql(mutation, {
+        const response = await admin.graphql(mutation, {
           variables: {
             productId,
             variants: updatesByProduct[productId]
           },
         });
+        const resData = await response.json();
+        const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
+        if (userErrors.length > 0) {
+            console.error(`Revert bulk update user errors for product ${productId}:`, userErrors);
+        }
         
         // Tag mutations (Reversed from applySale)
         if (sale.tagsToAdd) {

@@ -229,7 +229,7 @@ export async function action({ request }) {
                      node {
                        id
                        title
-                       variants(first: 50) {
+                       variants(first: 250) {
                          edges {
                            node {
                              id
@@ -286,7 +286,7 @@ export async function action({ request }) {
                      node {
                        id
                        title
-                       variants(first: 50) {
+                       variants(first: 250) {
                          edges {
                            node {
                              id
@@ -772,6 +772,11 @@ export default function NewSale() {
             <Card>
                 <BlockStack gap="400">
                     <Text as="h2" variant="headingSm">Applies to</Text>
+                    {["collections", "tags", "vendors", "all"].includes(appliesToType) && (
+                        <Banner tone="info">
+                           <p><strong>Note:</strong> Sales operate on a snapshot. Products added to this target after the sale is created will not be automatically discounted.</p>
+                        </Banner>
+                    )}
                     <InlineStack gap="200">
                          <div style={{ flex: 1 }}>
                              <Select

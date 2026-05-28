@@ -75,18 +75,13 @@ export async function action({ request }) {
   }
 
   // Shopify Discount Validation
-  const forceSave = formData.get("forceSave") === "true";
   const validation = await validateShopifyDiscount(couponCode, admin);
   
   if (!validation.ok) {
-    if (validation.isVerificationError && forceSave) {
-        // Skip validation and proceed
-    } else {
-        return json({ 
-            errors: { couponCode: validation.message }, 
-            isVerificationError: !!validation.isVerificationError 
-        }, { status: 400 });
-    }
+    return json({ 
+        errors: { couponCode: validation.message }, 
+        isVerificationError: !!validation.isVerificationError 
+    }, { status: 400 });
   }
 
   const products = JSON.parse(productsStr || "[]");
