@@ -83,10 +83,8 @@ export async function getPlan(request) {
   return getPlanWithAdmin(admin);
 }
 
-export async function getPlanUsage(request) {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
-  const { plan, trialDaysRemaining, hasEverPurchased, activeFrom, currentPeriodEnd } = await getPlan(request);
+export async function getPlanUsageForShop(shop, admin) {
+  const { plan, trialDaysRemaining, hasEverPurchased, activeFrom, currentPeriodEnd } = await getPlanWithAdmin(admin);
   const basePlan = plan.replace(" Annual", "");
   const limits = PLAN_LIMITS[basePlan] || PLAN_LIMITS.Free;
 
@@ -136,6 +134,10 @@ export async function getPlanUsage(request) {
   };
 }
 
+export async function getPlanUsage(request) {
+  const { session, admin } = await authenticate.admin(request);
+  return getPlanUsageForShop(session.shop, admin);
+}
 
 export async function checkLimit(request, feature) {
   const usage = await getPlanUsage(request);
@@ -160,10 +162,8 @@ export async function checkLimit(request, feature) {
  * @param {Date} targetEndTime - End time of the sale
  * @param {string} currentSaleId - ID of the sale being updated (to exclude its current database items)
  */
-export async function checkGlobalVariantLimit(request, newVariantIds, targetStartTime, targetEndTime, currentSaleId = null) {
-    const { session } = await authenticate.admin(request);
-    const shop = session.shop;
-    const usage = await getPlanUsage(request);
+export async function checkGlobalVariantLimitForShop(shop, admin, newVariantIds, targetStartTime, targetEndTime, currentSaleId = null) {
+    const usage = await getPlanUsageForShop(shop, admin);
     const limit = usage.variants.limit;
     
     if (limit === Infinity) return { ok: true };
@@ -203,6 +203,11 @@ export async function checkGlobalVariantLimit(request, newVariantIds, targetStar
         };
     }
     return { ok: true };
+}
+
+export async function checkGlobalVariantLimit(request, newVariantIds, targetStartTime, targetEndTime, currentSaleId = null) {
+    const { session, admin } = await authenticate.admin(request);
+    return checkGlobalVariantLimitForShop(session.shop, admin, newVariantIds, targetStartTime, targetEndTime, currentSaleId);
 }
 
 export async function checkDesignLimit(request) {

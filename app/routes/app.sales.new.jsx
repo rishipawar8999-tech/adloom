@@ -33,11 +33,21 @@ import { ActionErrorModal } from "../components/ActionErrorModal";
 
 export async function loader({ request }) {
   const { authenticate } = await import("../shopify.server");
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const { getTimers } = await import("../models/timer.server");
   try {
     const timers = await getTimers(session.shop);
-    return json({ timers, allowed: true });
+    
+    let productCount = 0;
+    try {
+        const response = await admin.graphql(`
+          query { productsCount { count } }
+        `);
+        const data = await response.json();
+        productCount = data?.data?.productsCount?.count || 0;
+    } catch (e) { console.error("Failed to fetch product count", e); }
+
+    return json({ timers, allowed: true, productCount });
   } catch (error) {
     console.error("Loader failed:", error);
     throw new Response("Failed to load timers", { status: 500 });
@@ -352,7 +362,7 @@ export default function NewSale() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
   const actionData = useActionData();
-  const { allowed } = useLoaderData();
+  const { allowed, productCount } = useLoaderData();
   const [selectedItems, setSelectedItems] = useState([]);
 
 
@@ -776,6 +786,14 @@ export default function NewSale() {
                         </Banner>
                     )}
 
+                    {appliesToType === "all" && (
+                        <Box paddingBlockStart="200">
+                          <Banner tone="info">
+                            <p>This sale will apply to <strong>{productCount} products</strong> across your store.</p>
+                          </Banner>
+                        </Box>
+                    )}
+
                     {/* Selected Items List */}
                      {appliesToType === "products" && selectedItems.length > 0 && (
                         <Box padding="200" background="bg-surface-secondary" borderRadius="200">
@@ -943,9 +961,12 @@ export default function NewSale() {
                  </BlockStack>
             </Card>
 
-             <Card>
+              <Card>
                 <BlockStack gap="400">
                     <Text as="h2" variant="headingSm">Deactivation</Text>
+                    <Banner tone="success">
+                      <strong>Rollback Guarantee:</strong> Original prices are automatically restored when this sale ends.
+                    </Banner>
                      <BlockStack gap="200">
                         <RadioButton
                             label="Restore prices exactly as they were before the sale activation"

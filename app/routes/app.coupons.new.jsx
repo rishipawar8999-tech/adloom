@@ -30,9 +30,22 @@ import {
 import { LockIcon } from "@shopify/polaris-icons";
 
 export async function loader({ request }) {
+  const { authenticate } = await import("../shopify.server");
+  const { admin } = await authenticate.admin(request);
+  
   const allowed = await checkLimit(request, "coupons");
   const designAllowed = await checkDesignLimit(request);
-  return json({ allowed, designAllowed });
+  
+  let productCount = 0;
+  try {
+      const response = await admin.graphql(`
+        query { productsCount { count } }
+      `);
+      const data = await response.json();
+      productCount = data?.data?.productsCount?.count || 0;
+  } catch (e) { console.error("Failed to fetch product count", e); }
+
+  return json({ allowed, designAllowed, productCount });
 }
 
 export async function action({ request }) {
@@ -120,7 +133,7 @@ export default function NewCouponPage() {
   const navigate = useNavigate();
   const actionData = useActionData();
   const navigation = useNavigation();
-  const { allowed, designAllowed } = useLoaderData();
+  const { allowed, designAllowed, productCount } = useLoaderData();
   const isLoading = navigation.state === "submitting";
 
   const [isDirty, setIsDirty] = useState(false);
@@ -481,6 +494,11 @@ export default function NewCouponPage() {
                 <Banner tone="warning">
                   This offer will appear on all product pages. Use this only for store-wide campaigns.
                 </Banner>
+                <Box paddingBlockStart="200">
+                  <Banner tone="info">
+                    <p>This offer will apply to <strong>{productCount} products</strong> across your store.</p>
+                  </Banner>
+                </Box>
               </Box>
             )}
           </Box>
