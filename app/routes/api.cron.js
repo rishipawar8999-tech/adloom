@@ -7,8 +7,12 @@ import { checkGlobalVariantLimitForShop } from "../models/billing.server";
 export async function loader({ request }) {
   const url = new URL(request.url);
   const secret = url.searchParams.get("secret") || request.headers.get("x-cron-secret");
-  const expectedSecret = process.env.CRON_SECRET || "default_dev_secret";
+  const expectedSecret = process.env.CRON_SECRET;
   
+  if (!expectedSecret) {
+    return json({ error: "CRON_SECRET not configured" }, { status: 500 });
+  }
+
   if (secret !== expectedSecret) {
     return json({ error: "Unauthorized" }, { status: 401 });
   }

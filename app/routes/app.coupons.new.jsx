@@ -492,13 +492,9 @@ export default function NewCouponPage() {
             {appliesToType === "all" && (
               <Box paddingBlockStart="200">
                 <Banner tone="warning">
-                  This offer will appear on all product pages. Use this only for store-wide campaigns.
+                  <p>This offer will appear on all product pages. Use this only for store-wide campaigns.</p>
+                  <p>This offer will apply to <strong>{productCount} products</strong> across your store.</p>
                 </Banner>
-                <Box paddingBlockStart="200">
-                  <Banner tone="info">
-                    <p>This offer will apply to <strong>{productCount} products</strong> across your store.</p>
-                  </Banner>
-                </Box>
               </Box>
             )}
           </Box>
