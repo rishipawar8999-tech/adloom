@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useNavigation, useSubmit, useLoaderData } from "@remix-run/react";
+import { useActionData, useNavigation, useSubmit, useLoaderData, useNavigate } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { checkLimit, checkDesignLimit } from "../models/billing.server";
@@ -93,22 +93,31 @@ export async function action({ request }) {
       }
   }
 
-  await createCoupon({
-    offerTitle,
-    couponCode: couponCode.toUpperCase(),
-    description,
-    startTime,
-    endTime,
-    style: styleStr,
-    products,
-  }, session.shop);
+  try {
+    await createCoupon({
+      offerTitle,
+      couponCode: couponCode.toUpperCase(),
+      description,
+      startTime,
+      endTime,
+      style: styleStr,
+      products,
+    }, session.shop);
 
-  return redirect("/app/coupons");
+    return redirect("/app/coupons");
+  } catch (error) {
+    console.error("[createCoupon] failed:", error);
+    return json(
+      { errors: { base: "Failed to create offer. Please try again." } },
+      { status: 500 }
+    );
+  }
 }
 
 export default function NewCouponPage() {
   const shopify = useAppBridge();
   const submit = useSubmit();
+  const navigate = useNavigate();
   const actionData = useActionData();
   const navigation = useNavigation();
   const { allowed, designAllowed } = useLoaderData();
@@ -690,7 +699,7 @@ export default function NewCouponPage() {
         title="Upgrade to Unlock Premium Designs"
         primaryAction={{
           content: "View Plans",
-          onAction: () => window.location.href = "/app/pricing",
+          onAction: () => navigate("/app/pricing"),
         }}
         secondaryActions={[
           {

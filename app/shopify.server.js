@@ -23,7 +23,7 @@ const shopify = shopifyApp({
   billing: {
     "Basic": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 9.99,
@@ -34,7 +34,7 @@ const shopify = shopifyApp({
     },
     "Basic Annual": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 95.90,
@@ -45,7 +45,7 @@ const shopify = shopifyApp({
     },
     "Growth": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 19.99,
@@ -56,7 +56,7 @@ const shopify = shopifyApp({
     },
     "Growth Annual": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 191.90,
@@ -67,7 +67,7 @@ const shopify = shopifyApp({
     },
     "Pro": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 29.99,
@@ -78,7 +78,7 @@ const shopify = shopifyApp({
     },
     "Pro Annual": {
       replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
-      trialDays: 7,
+      trialDays: 3,
       lineItems: [
         {
           amount: 287.90,

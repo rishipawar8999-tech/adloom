@@ -23,19 +23,11 @@ function validateTransition(current, target) {
   if (current === "Free" || !current) return { valid: true };
   if (current === target) return { valid: false, reason: "Active Plan" };
 
-  const currentTier = getTier(current);
-  const targetTier = getTier(target);
   const currentAnn = isAnnual(current);
   const targetAnn = isAnnual(target);
 
   if (currentAnn && !targetAnn) {
     return { valid: false, reason: "Cannot switch directly from Annual to Monthly." };
-  }
-  if (currentAnn && targetAnn && targetTier < currentTier) {
-    return { valid: false, reason: "Cannot downgrade an Annual plan directly." };
-  }
-  if (!currentAnn && !targetAnn && targetTier < currentTier) {
-    return { valid: false, reason: "Cannot downgrade a Monthly plan directly." };
   }
   return { valid: true };
 }
@@ -69,7 +61,7 @@ export async function action({ request }) {
   if (!transition.valid && transition.reason !== "Active Plan") {
     return json({ 
       error: "Invalid Plan Transition", 
-      details: "Downgrades and Annual-to-Monthly switches are not supported directly. To move to a lower plan or switch from Annual to Monthly, cancel your current subscription first, then choose a new plan. Cancelling moves your account to the Free plan and may limit creation of new sales, coupons, or timers."
+      details: "Invalid transition."
     }, { status: 400 });
   }
 
@@ -278,18 +270,25 @@ function UsageBar({ label, used, limit }) {
   );
 }
 
-function PlanCard({ plan, currentPlan }) {
+function PlanCard({ plan, currentPlan, onDowngradeRequest }) {
   const submit = useSubmit();
   const navigate = useNavigate();
   const isCurrent = plan.id === currentPlan;
   const transition = validateTransition(currentPlan, plan.id);
   const isDisabled = isCurrent || !transition.valid;
   
+  const isDowngrade = getTier(plan.id) < getTier(currentPlan) && !isAnnual(plan.id);
+  const label = isCurrent ? "Current Plan" : (isDowngrade ? "Downgrade" : plan.buttonLabel);
+  
   const handleSelect = () => {
     // Free plan doesn't go through billing.request — navigate to cancel instead.
     // MUST use Remix navigate to preserve App Bridge session token!
     if (plan.id === "Free") {
       navigate("/app/cancel");
+      return;
+    }
+    if (isDowngrade) {
+      onDowngradeRequest(plan.id);
       return;
     }
     submit({ plan: plan.id }, { method: "post" });
@@ -354,7 +353,7 @@ function PlanCard({ plan, currentPlan }) {
                   size="large"
                   className={plan.highlighted ? "premium-button-growth" : ""}
                 >
-                  {isCurrent ? "Current Plan" : plan.buttonLabel}
+                  {label}
                 </Button>
               </div>
             </Tooltip>
@@ -367,7 +366,7 @@ function PlanCard({ plan, currentPlan }) {
               size="large"
               className={plan.highlighted ? "premium-button-growth" : ""}
             >
-              {isCurrent ? "Current Plan" : plan.buttonLabel}
+              {label}
             </Button>
           )}
         </BlockStack>
@@ -378,7 +377,7 @@ function PlanCard({ plan, currentPlan }) {
 
 // ... PlanBenefits removed or updated if used ...
 
-function CelebrationModal({ isOpen, onClose, planName }) {
+function CelebrationModal({ isOpen, onClose, planName, navigate }) {
   return (
     <Modal
       open={isOpen}
@@ -386,12 +385,12 @@ function CelebrationModal({ isOpen, onClose, planName }) {
       title="🎉 You're Upgraded!"
       primaryAction={{
         content: "Create Your First Sale →",
-        onAction: () => window.location.href = "/app/sales/new",
+        onAction: () => navigate("/app/sales/new"),
       }}
       secondaryActions={[
         {
           content: "Visit Help Center",
-          onAction: () => window.location.href = "/app/help",
+          onAction: () => navigate("/app/help"),
         }
       ]}
     >
@@ -445,6 +444,9 @@ export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false);
   const [showCelebrate, setShowCelebrate] = useState(false);
   const [showDowngradeModal, setShowDowngradeModal] = useState(false);
+  const [pendingDowngrade, setPendingDowngrade] = useState(null);
+  const navigate = useNavigate();
+  const submit = useSubmit();
 
   useEffect(() => {
     if (celebrate) {
@@ -459,6 +461,11 @@ export default function PricingPage() {
       window.history.replaceState({}, "", location.pathname);
     }
   }, [cancelled, location.pathname]);
+
+  const handleDowngradeRequest = (planId) => {
+    setPendingDowngrade(planId);
+    setShowDowngradeModal(true);
+  };
 
   const plans = [
     {
@@ -498,7 +505,7 @@ export default function PricingPage() {
       trial: !hasEverPurchased
         ? (trialDaysRemaining > 0 && currentPlan === "Basic"
             ? `${trialDaysRemaining} days left in trial`
-            : "7-day free trial")
+            : "3-day free trial")
         : null,
       buttonLabel: "Choose Basic",
       highlighted: false,
@@ -522,7 +529,7 @@ export default function PricingPage() {
       trial: !hasEverPurchased
         ? (trialDaysRemaining > 0 && (currentPlan === "Growth" || currentPlan === "Growth Annual")
             ? `${trialDaysRemaining} days left in trial`
-            : "7-day free trial")
+            : "3-day free trial")
         : null,
       buttonLabel: "Choose Growth",
       highlighted: true,
@@ -545,7 +552,7 @@ export default function PricingPage() {
       trial: !hasEverPurchased
         ? (trialDaysRemaining > 0 && (currentPlan === "Pro" || currentPlan === "Pro Annual")
             ? `${trialDaysRemaining} days left in trial`
-            : "7-day free trial")
+            : "3-day free trial")
         : null,
       buttonLabel: "Choose Pro",
       highlighted: false,
@@ -555,20 +562,42 @@ export default function PricingPage() {
   return (
     <Page title="" backAction={{ url: "/app" }}>
       <style>{premiumStyles}</style>
-      <CelebrationModal isOpen={showCelebrate} onClose={() => setShowCelebrate(false)} planName={planName} />
+      <CelebrationModal isOpen={showCelebrate} onClose={() => setShowCelebrate(false)} planName={planName} navigate={navigate} />
       
       <Modal
         open={showDowngradeModal}
-        onClose={() => setShowDowngradeModal(false)}
-        title="Plan Changed Successfully"
-        primaryAction={{
-          content: "Okay",
-          onAction: () => setShowDowngradeModal(false),
+        onClose={() => {
+          setShowDowngradeModal(false);
+          setPendingDowngrade(null);
         }}
+        title={pendingDowngrade ? "Confirm Downgrade" : "Plan Changed Successfully"}
+        primaryAction={{
+          content: pendingDowngrade ? "Confirm Downgrade" : "Okay",
+          onAction: () => {
+            if (pendingDowngrade) {
+              submit({ plan: pendingDowngrade }, { method: "post" });
+              setShowDowngradeModal(false);
+              setPendingDowngrade(null);
+            } else {
+              setShowDowngradeModal(false);
+            }
+          },
+        }}
+        secondaryActions={pendingDowngrade ? [
+          {
+            content: "Cancel",
+            onAction: () => {
+              setShowDowngradeModal(false);
+              setPendingDowngrade(null);
+            }
+          }
+        ] : []}
       >
         <Modal.Section>
           <Text as="p">
-            Your plan has been changed successfully. Because Shopify applies billing changes immediately and may issue prorated app credits for unused time, your new plan limits are now active.
+            {pendingDowngrade 
+              ? "Are you sure you want to downgrade? Your new plan limits will take effect at the end of your current billing cycle." 
+              : "Your plan has been changed successfully. Because Shopify applies billing changes immediately and may issue prorated app credits for unused time, your new plan limits are now active."}
           </Text>
         </Modal.Section>
       </Modal>
@@ -641,7 +670,7 @@ export default function PricingPage() {
     
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "30px", padding: "10px" }}>
                   {plans.map((plan) => (
-                    <PlanCard key={plan.id} plan={plan} currentPlan={currentPlan} />
+                    <PlanCard key={plan.id} plan={plan} currentPlan={currentPlan} onDowngradeRequest={handleDowngradeRequest} />
                   ))}
                 </div>
     

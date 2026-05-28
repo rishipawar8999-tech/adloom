@@ -7,10 +7,19 @@ import { authenticate } from "../shopify.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
-export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+import { json } from "@remix-run/node";
 
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+import { getPlanWithAdmin } from "../models/billing.server";
+
+export const loader = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+  const planInfo = await getPlanWithAdmin(admin); // live GraphQL call
+
+  return {
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    plan: planInfo.plan,
+    hasActiveSubscription: planInfo.plan !== "Free",
+  };
 };
 
 export default function App() {
