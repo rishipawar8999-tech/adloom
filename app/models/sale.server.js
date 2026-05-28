@@ -264,6 +264,7 @@ export async function applySale(saleId, admin) {
                 compareAtPrice
                 product {
                   id
+                  status
                 }
               }
             }
@@ -291,6 +292,14 @@ export async function applySale(saleId, admin) {
 
                 const currentPrice = parseFloat(variantData.price);
                 const currentCompareAt = variantData.compareAtPrice ? parseFloat(variantData.compareAtPrice) : null;
+
+                if (sale.excludeDrafts && variantData.product.status === "DRAFT") {
+                    continue;
+                }
+                
+                if (sale.excludeOnSale && currentCompareAt !== null) {
+                    continue;
+                }
                 
                 const strategy = sale.discountStrategy || "COMPARE_AT";
                 let basePrice = currentPrice;
@@ -320,6 +329,10 @@ export async function applySale(saleId, admin) {
                 if (strategy === "INCREASE_COMPARE") {
                   newPrice = currentPrice;
                   newCompareAt = currentPrice + discountAmount;
+                }
+
+                if (sale.overrideCents) {
+                  newPrice = Math.floor(newPrice) + 0.99;
                 }
 
                 if (newPrice < 0) newPrice = 0;
@@ -369,6 +382,20 @@ export async function applySale(saleId, admin) {
         await admin.graphql(mutation, {
           variables: { productId, variants },
         });
+        
+        // Tag mutations
+        if (sale.tagsToAdd) {
+          const tags = sale.tagsToAdd.split(',').map(t => t.trim()).filter(Boolean);
+          if (tags.length > 0) {
+            await admin.graphql(`mutation tagsAdd($id: ID!, $tags: [String!]!) { tagsAdd(id: $id, tags: $tags) { userErrors { message } } }`, { variables: { id: productId, tags } });
+          }
+        }
+        if (sale.tagsToRemove) {
+          const tags = sale.tagsToRemove.split(',').map(t => t.trim()).filter(Boolean);
+          if (tags.length > 0) {
+            await admin.graphql(`mutation tagsRemove($id: ID!, $tags: [String!]!) { tagsRemove(id: $id, tags: $tags) { userErrors { message } } }`, { variables: { id: productId, tags } });
+          }
+        }
       } catch (bulkError) {
         console.error(`Error bulk updating product ${productId}:`, bulkError);
       }
@@ -550,6 +577,20 @@ export async function revertSale(saleId, admin) {
             variants: updatesByProduct[productId]
           },
         });
+        
+        // Tag mutations (Reversed from applySale)
+        if (sale.tagsToAdd) {
+          const tags = sale.tagsToAdd.split(',').map(t => t.trim()).filter(Boolean);
+          if (tags.length > 0) {
+            await admin.graphql(`mutation tagsRemove($id: ID!, $tags: [String!]!) { tagsRemove(id: $id, tags: $tags) { userErrors { message } } }`, { variables: { id: productId, tags } });
+          }
+        }
+        if (sale.tagsToRemove) {
+          const tags = sale.tagsToRemove.split(',').map(t => t.trim()).filter(Boolean);
+          if (tags.length > 0) {
+            await admin.graphql(`mutation tagsAdd($id: ID!, $tags: [String!]!) { tagsAdd(id: $id, tags: $tags) { userErrors { message } } }`, { variables: { id: productId, tags } });
+          }
+        }
       } catch (bulkError) {
         console.error(`Error revert-bulk updating product ${productId}:`, bulkError);
       }

@@ -268,6 +268,63 @@ export async function action({ request }) {
            if (hasNextPage) {
                console.warn(`[Loom] Vendor query "${vendorQuery}" product fetch limit reached (15 pages). Items may be truncated.`);
            }
+      } else if (appliesToType === "all") {
+           let hasNextPage = true;
+           let cursor = null;
+           let loops = 0;
+
+           while (hasNextPage && loops < 20) {
+             loops++;
+             const response = await admin.graphql(`
+               query getAllProducts($cursor: String) {
+                 products(first: 250, after: $cursor) {
+                   pageInfo {
+                     hasNextPage
+                     endCursor
+                   }
+                   edges {
+                     node {
+                       id
+                       title
+                       variants(first: 50) {
+                         edges {
+                           node {
+                             id
+                             title
+                           }
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+             `, { variables: { cursor } });
+             
+             const data = await response.json();
+             const connection = data?.data?.products;
+             
+             if (!connection) break;
+
+             const products = connection.edges || [];
+             products.forEach(({ node: product }) => {
+                 const variants = product.variants?.edges || [];
+                 variants.forEach(({ node: variant }) => {
+                     items.push({
+                         productId: product.id,
+                         variantId: variant.id,
+                         productTitle: product.title,
+                         variantTitle: variant.title,
+                     });
+                 });
+             });
+             
+             hasNextPage = connection.pageInfo?.hasNextPage;
+             cursor = connection.pageInfo?.endCursor;
+           }
+           
+           if (hasNextPage) {
+               console.warn(`[Loom] Whole Store product fetch limit reached (20 pages). Items may be truncated.`);
+           }
       }
   }
 
