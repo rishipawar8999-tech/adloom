@@ -357,6 +357,20 @@ export async function applySale(saleId, admin) {
        console.warn(`[ApplySale] No valid items found to update for sale ${saleId}`);
     }
 
+    // Optimization: Use $transaction for DB updates BEFORE hitting Shopify
+    // This ensures if Shopify fails or server crashes, we don't lose the originalPrice
+    await prisma.$transaction(
+        itemsToUpdate.map(update => 
+            prisma.saleItem.updateMany({
+                where: { id: update.id, originalPrice: 0 },
+                data: { 
+                  originalPrice: update.originalPrice,
+                  originalCompareAt: update.originalCompareAt
+                },
+            })
+        )
+    );
+
     const mutation = `
       mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
         productVariantsBulkUpdate(productId: $productId, variants: $variants) {
@@ -406,20 +420,7 @@ export async function applySale(saleId, admin) {
       }
     }
 
-    // Batch update database records (Prisma doesn't support bulk update with different values easily, 
-    // so we might still need a loop, but strictly for DB which is faster than HTTP)
-    // Optimization: Use $transaction for DB updates
-    await prisma.$transaction(
-        itemsToUpdate.map(update => 
-            prisma.saleItem.updateMany({
-                where: { id: update.id, originalPrice: 0 },
-                data: { 
-                  originalPrice: update.originalPrice,
-                  originalCompareAt: update.originalCompareAt
-                },
-            })
-        )
-    );
+    // DB updates were moved above Shopify mutations to fix crash window
 
     await prisma.sale.update({
       where: { id: saleId },

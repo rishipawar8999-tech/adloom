@@ -19,6 +19,13 @@ export async function loader({ request }) {
 
   const now = new Date();
   
+  // Track cron execution
+  await prisma.systemState.upsert({
+    where: { id: "singleton" },
+    update: { lastCron: now },
+    create: { id: "singleton", lastCron: now }
+  });
+  
   // Find all sales to start (globally)
   const salesToStart = await prisma.sale.findMany({
     where: {
@@ -98,7 +105,42 @@ export async function loader({ request }) {
         results.errors.push(`Revert error for ${sale.id}: ${e.message}`);
     }
   }
+  // Process pending downgrades
+  const pendingDowngrades = await prisma.pendingDowngrade.findMany();
+  for (const pd of pendingDowngrades) {
+    const admin = await getAdminClient(pd.shop);
+    if (!admin) continue; // Still no admin, keep pending
+    
+    try {
+      const PLAN_LIMITS = {
+        Free: { maxSales: 1 },
+        Basic: { maxSales: 5 },
+        Growth: { maxSales: Infinity },
+        Pro: { maxSales: Infinity }
+      };
+      const limits = PLAN_LIMITS[pd.plan] || PLAN_LIMITS.Free;
+      
+      if (limits.maxSales !== Infinity) {
+          const activeSales = await prisma.sale.findMany({
+              where: { shop: pd.shop, status: "ACTIVE" },
+              orderBy: { createdAt: "desc" },
+          });
 
+          if (activeSales.length > limits.maxSales) {
+              const salesToRevert = activeSales.slice(limits.maxSales);
+              for (const sale of salesToRevert) {
+                  await revertSale(sale.id, admin);
+              }
+          }
+      }
+      
+      // Cleanup pending downgrade
+      await prisma.pendingDowngrade.delete({ where: { id: pd.id } });
+      results.downgrades = (results.downgrades || 0) + 1;
+    } catch (e) {
+      results.errors.push(`Downgrade error for ${pd.shop}: ${e.message}`);
+    }
+  }
   return json({
     success: true,
     startedCount: results.started.length,

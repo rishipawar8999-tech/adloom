@@ -111,7 +111,7 @@ export async function action({ request }) {
                            node {
                              id
                              title
-                             variants(first: 50) {
+                             variants(first: 250) {
                                edges {
                                  node {
                                    id
@@ -171,7 +171,7 @@ export async function action({ request }) {
                      node {
                        id
                        title
-                       variants(first: 50) {
+                       variants(first: 250) {
                          edges {
                            node {
                              id

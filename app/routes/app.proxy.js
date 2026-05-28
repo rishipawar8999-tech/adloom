@@ -38,7 +38,7 @@ export async function loader({ request }) {
     }));
 
     return json(responseData, {
-      headers: { "Cache-Control": "private, max-age=10" }
+      headers: { "Cache-Control": "private, max-age=5" }
     });
   }
 
@@ -70,6 +70,6 @@ export async function loader({ request }) {
   } : null;
 
   return json(responseData, {
-    headers: { "Cache-Control": "private, max-age=10" }
+    headers: { "Cache-Control": "private, max-age=5" }
   });
 }

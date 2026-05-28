@@ -13,6 +13,18 @@ export const action = async ({ request }) => {
 
   console.log(`[Webhook] Received APP_SUBSCRIPTIONS_UPDATE for ${shop}`);
 
+  // 1. Determine Plan from Payload (Primary)
+  let plan = "Free";
+  if (payload.app_installation && payload.app_installation.active_subscriptions) {
+      const activeSub = payload.app_installation.active_subscriptions.find(s => s.status === "ACTIVE");
+      if (activeSub) {
+          const name = activeSub.name.toLowerCase();
+          if (name.includes("pro")) plan = "Pro";
+          else if (name.includes("growth")) plan = "Growth";
+          else if (name.includes("basic")) plan = "Basic";
+      }
+  }
+
   if (!admin) {
     console.log(`[Webhook] No admin client available for ${shop}. Falling back to offline token.`);
     try {
@@ -21,28 +33,19 @@ export const action = async ({ request }) => {
       admin = offlineSession.admin;
     } catch (e) {
       console.error(`[Webhook] Failed to load offline admin for ${shop}:`, e);
-      return new Response("No admin client", { status: 200 });
     }
     
     if (!admin) {
-      console.error(`[Webhook] Still no admin client after offline token attempt for ${shop}.`);
-      return new Response("No admin client", { status: 200 });
+      console.error(`[Webhook] Still no admin client for ${shop}. Queueing pending downgrade to ${plan}.`);
+      const db = (await import("../db.server")).default;
+      await db.pendingDowngrade.create({ data: { shop, plan } });
+      return new Response("Queued pending downgrade", { status: 200 });
     }
   }
 
   try {
-    // 1. Determine Plan from Payload (Primary)
-    let plan = "Free";
-    if (payload.app_installation && payload.app_installation.active_subscriptions) {
-        const activeSub = payload.app_installation.active_subscriptions.find(s => s.status === "ACTIVE");
-        if (activeSub) {
-            const name = activeSub.name.toLowerCase();
-            if (name.includes("pro")) plan = "Pro";
-            else if (name.includes("growth")) plan = "Growth";
-            else if (name.includes("basic")) plan = "Basic";
-        }
-    } else {
-        // Fallback: Fetch from Shopify if payload is incomplete
+    // Fallback: Fetch from Shopify if payload is incomplete
+    if (!payload.app_installation) {
         const result = await getPlanWithAdmin(admin);
         plan = result.plan || "Free";
     }

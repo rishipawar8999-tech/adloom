@@ -68,7 +68,12 @@ export async function loader({ request }) {
     // A reinstalled merchant: they have history but are currently on Free (no active subscription)
     const isReinstall = usage.hasEverPurchased && usage.plan === "Free";
 
-    return json({ sales, timers, coupons, usage, isReinstall });
+    const db = (await import("../db.server")).default;
+    const systemState = await db.systemState.findUnique({ where: { id: "singleton" } });
+    const cronLastRun = systemState?.lastCron || null;
+    const isBillingTestMode = process.env.BILLING_TEST_MODE === "true";
+
+    return json({ sales, timers, coupons, usage, isReinstall, cronLastRun, isBillingTestMode });
   } catch (error) {
     console.error("Loader failed:", error);
     throw new Response("Failed to load dashboard data", { status: 500 });
@@ -146,7 +151,7 @@ export async function action({ request }) {
 }
 
 export default function Index() {
-  const { sales = [], timers = [], coupons = [], isReinstall = false } = useLoaderData() || {};
+  const { sales = [], timers = [], coupons = [], isReinstall = false, cronLastRun, isBillingTestMode } = useLoaderData() || {};
   const actionData = useActionData();
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -162,6 +167,18 @@ export default function Index() {
     const dismissed = localStorage.getItem("loom_track_dismissed");
     if (dismissed) setTrackDismissed(true);
   }, []);
+
+  const [cronWarning, setCronWarning] = useState(false);
+  useEffect(() => {
+    if (!cronLastRun) {
+      setCronWarning(true);
+    } else {
+      const msSince = new Date() - new Date(cronLastRun);
+      if (msSince > 15 * 60 * 1000) { // 15 mins
+        setCronWarning(true);
+      }
+    }
+  }, [cronLastRun]);
 
   const milestones = useMemo(() => {
     return [
@@ -559,6 +576,22 @@ export default function Index() {
                     title={`Sale activated: ${updatedCount} prices updated.`}
                 >
                     <p>Prices have been successfully synced to your storefront.</p>
+                </Banner>
+             </div>
+          )}
+
+          {isBillingTestMode && (
+             <div style={{ marginBottom: "2rem" }}>
+                <Banner tone="warning" title="Test Billing Mode Active">
+                    <p>The app is running with BILLING_TEST_MODE=true. Real charges will not be processed.</p>
+                </Banner>
+             </div>
+          )}
+
+          {cronWarning && (
+             <div style={{ marginBottom: "2rem" }}>
+                <Banner tone="critical" title="Cron Service Disconnected">
+                    <p>The automated job scheduler hasn't run recently. Scheduled sales and expirations will not process automatically until cron is restored.</p>
                 </Banner>
              </div>
           )}

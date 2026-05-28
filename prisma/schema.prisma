@@ -103,3 +103,15 @@ model CouponProduct {
   coupon    Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
   productId String
 }
+
+model PendingDowngrade {
+  id        String   @id @default(uuid())
+  shop      String
+  plan      String?
+  createdAt DateTime @default(now())
+}
+
+model SystemState {
+  id        String   @id @default("singleton")
+  lastCron  DateTime @default(now())
+}
