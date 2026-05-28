@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "05491c913c36faff0a054d2082faf04f"
-name = "Sales manger"
+name = "Sales manager"
 application_url = "https://adloom-production.up.railway.app"
 embedded = true
 
@@ -10,7 +10,7 @@ automatically_update_urls_on_dev = true
 include_config_on_deploy = true
 
 [webhooks]
-api_version = "2026-04"
+api_version = "2025-01"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
@@ -34,3 +34,8 @@ redirect_urls = [
   "https://adloom-production.up.railway.app/auth/shopify/callback",
   "https://adloom-production.up.railway.app/api/auth/callback"
 ]
+
+[app_proxy]
+url = "https://adloom-production.up.railway.app/app/proxy"
+subpath = "timer"
+prefix = "apps"
