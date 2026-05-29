@@ -105,3 +105,22 @@ export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
+
+// Internal Cron Scheduler
+import { runCronTasks } from "./cron.server";
+
+if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development") {
+  if (!global.__cronInterval) {
+    console.log("[Internal Scheduler] Initializing background task runner...");
+    global.__cronInterval = setInterval(async () => {
+       try {
+         const results = await runCronTasks();
+         if (results.started.length > 0 || results.ended.length > 0 || results.downgrades > 0) {
+           console.log(`[Internal Scheduler] Run complete: Started ${results.started.length}, Ended ${results.ended.length}, Downgrades ${results.downgrades}`);
+         }
+       } catch (e) {
+         console.error("[Internal Scheduler] Error running tasks:", e);
+       }
+    }, 60000); // Run every 60 seconds
+  }
+}
