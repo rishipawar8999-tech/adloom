@@ -18,10 +18,6 @@ export async function validateShopifyDiscount(code, admin) {
             status
             title
           }
-          ... on DiscountCodeBuyXGetY {
-            status
-            title
-          }
           ... on DiscountCodeFreeShipping {
             status
             title
