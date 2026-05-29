@@ -19,6 +19,8 @@ import {
   Modal,
   Spinner,
   Tabs,
+  Box,
+  Collapsible,
   useIndexResourceState
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -184,13 +186,13 @@ export default function Index() {
     return [
       {
         id: "placement",
-        label: "Customize Placement",
-        done: false, // Always false initially, or check if theme app extension is active (hard to do from here)
-        actionLabel: "Open Editor",
+        label: "Add Blocks to Your Theme",
+        done: false,
+        actionLabel: "Open Theme Editor",
         url: "https://admin.shopify.com/themes/current/editor",
         external: true,
         target: "_top",
-        description: "Position your timers and offers in the theme editor."
+        description: "Add the Loom Timer and Loom Offer blocks to your product page template. Required for widgets to appear on your storefront."
       },
       {
         id: "sale",
@@ -198,7 +200,7 @@ export default function Index() {
         done: sales.length > 0,
         actionLabel: "Create Sale",
         onAction: () => navigate("/app/sales/new"),
-        description: "Launch a store-wide or collection-specific sale."
+        description: "Automatically discount product variants. Products are snapshotted at creation — new products added to a collection later must be added manually."
       },
       {
         id: "timer",
@@ -206,15 +208,15 @@ export default function Index() {
         done: timers.length > 0,
         actionLabel: "Create Timer",
         onAction: () => navigate("/app/timers/new"),
-        description: "Drive urgency with a countdown on your products."
+        description: "Create a countdown timer and link it to a sale. The timer displays on product pages via the theme block you added in step 1."
       },
       {
         id: "offer",
-        label: "Create an Offer",
+        label: "Display an Offer Banner",
         done: coupons.length > 0,
         actionLabel: "Create Offer",
-        onAction: () => navigate("/app/coupons/new"), // Assuming coupons route
-        description: "Set up a coupon code or special deal."
+        onAction: () => navigate("/app/coupons/new"),
+        description: "Show an existing Shopify discount code as a styled banner. Create the discount in Shopify Admin → Discounts first, then enter the code here."
       }
     ];
   }, [sales, timers, coupons, navigate]);
@@ -262,6 +264,146 @@ export default function Index() {
   const handleDismissTrack = () => {
     setTrackDismissed(true);
     localStorage.setItem("loom_track_dismissed", "true");
+  };
+
+  // Setup guide state
+  const [setupTab, setSetupTab] = useState(0);
+  const [setupOpen, setSetupOpen] = useState(true);
+  const [setupDismissed, setSetupDismissed] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem("loom_setup_dismissed")) setSetupDismissed(true);
+  }, []);
+
+  const setupTabs = [
+    { id: "sales", content: "Sales" },
+    { id: "timers", content: "Timers" },
+    { id: "offers", content: "Offers" },
+  ];
+
+  const SetupGuide = () => {
+    if (setupDismissed) return null;
+    return (
+      <div className="animate-fade-in-up stagger-1" style={{ marginBottom: "1.5rem" }}>
+        <Card>
+          <BlockStack gap="0">
+            <div
+              onClick={() => setSetupOpen(o => !o)}
+              style={{ cursor: "pointer", padding: "16px 20px" }}
+            >
+              <InlineStack align="space-between" blockAlign="center">
+                <BlockStack gap="100">
+                  <Text as="h2" variant="headingMd" fontWeight="bold">Quick Setup Guide</Text>
+                  <Text as="p" variant="bodyMd" tone="subdued">Everything you need to know to get started with Loom.</Text>
+                </BlockStack>
+                <InlineStack gap="200" blockAlign="center">
+                  <Text as="span" variant="bodySm" tone="subdued">{setupOpen ? "Hide" : "Show"}</Text>
+                  <Button
+                    variant="plain"
+                    icon={XIcon}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSetupDismissed(true);
+                      localStorage.setItem("loom_setup_dismissed", "true");
+                    }}
+                    accessibilityLabel="Dismiss setup guide"
+                  />
+                </InlineStack>
+              </InlineStack>
+            </div>
+
+            <Collapsible open={setupOpen} id="setup-guide-body">
+              <div style={{ borderTop: "1px solid #e5e7eb" }}>
+                <Tabs tabs={setupTabs} selected={setupTab} onSelect={setSetupTab} fitted />
+                <Box padding="500">
+                  {setupTab === 0 && (
+                    <BlockStack gap="400">
+                      <Banner tone="info">
+                        <strong>Sales</strong> automatically change product variant prices in your Shopify store for a set time window. Prices are restored when the sale ends.
+                      </Banner>
+                      <BlockStack gap="300">
+                        {[
+                          { step: "1", title: "Create a Sale", body: 'Go to Sales → Create Sale. Give it a title, choose a discount type (% or fixed amount), and set your start and end times.' },
+                          { step: "2", title: "Choose What to Discount", body: 'Select specific products, a collection, tag, or vendor. Note: products are captured at the moment of creation — if you add products to a collection later, you will need to edit the sale to include them.' },
+                          { step: "3", title: "Set Advanced Options (Optional)", body: 'Choose your discount strategy (compare-at pricing, keep current compare-at, etc.) and whether to exclude draft products.' },
+                          { step: "4", title: "Activate", body: 'If your start time is in the past the sale activates immediately. Future start times are handled automatically by our scheduler. You can also activate manually from the dashboard.' },
+                        ].map(({ step, title, body }) => (
+                          <div key={step} style={{ display: "flex", gap: "16px" }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
+                            <BlockStack gap="100">
+                              <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
+                              <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                            </BlockStack>
+                          </div>
+                        ))}
+                      </BlockStack>
+                      <InlineStack gap="200">
+                        <Button variant="primary" onClick={() => navigate("/app/sales/new")}>Create your first sale</Button>
+                        <Button variant="plain" url="/app/help">Learn more</Button>
+                      </InlineStack>
+                    </BlockStack>
+                  )}
+
+                  {setupTab === 1 && (
+                    <BlockStack gap="400">
+                      <Banner tone="info">
+                        <strong>Timers</strong> are countdown widgets that display on your product pages. They do not change prices — link them to a Sale to show when the deal ends.
+                      </Banner>
+                      <BlockStack gap="300">
+                        {[
+                          { step: "1", title: "Add the Timer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Timer block. Save.' },
+                          { step: "2", title: "Create a Timer", body: 'Go to Timers → Create Timer. Set a display name and optionally link it to a Sale so the countdown matches your sale end time.' },
+                          { step: "3", title: "Publish and Test", body: 'Visit a product page on your storefront to confirm the timer appears. If it does not show, check that the Timer block is added and visible in your theme editor.' },
+                        ].map(({ step, title, body }) => (
+                          <div key={step} style={{ display: "flex", gap: "16px" }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
+                            <BlockStack gap="100">
+                              <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
+                              <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                            </BlockStack>
+                          </div>
+                        ))}
+                      </BlockStack>
+                      <InlineStack gap="200">
+                        <Button variant="primary" onClick={() => navigate("/app/timers/new")}>Create a timer</Button>
+                        <Button variant="plain" url="https://admin.shopify.com/themes/current/editor" external target="_top">Open Theme Editor</Button>
+                      </InlineStack>
+                    </BlockStack>
+                  )}
+
+                  {setupTab === 2 && (
+                    <BlockStack gap="400">
+                      <Banner tone="info">
+                        <strong>Offers</strong> are display-only banners that show an existing discount code on product pages. Loom does not create discounts — you must create the discount in Shopify Admin first.
+                      </Banner>
+                      <BlockStack gap="300">
+                        {[
+                          { step: "1", title: "Create a Discount in Shopify Admin", body: 'Go to your Shopify Admin → Discounts → Create discount. Set up your discount (percentage, fixed, BOGO, etc.) and copy the discount code.' },
+                          { step: "2", title: "Add the Offer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, add the Loom Offer block and save.' },
+                          { step: "3", title: "Create an Offer in Loom", body: 'Go to Offers → Create Offer. Enter the Shopify discount code you created in step 1, set a title, schedule, and choose which products to display it on.' },
+                          { step: "4", title: "Preview on Your Storefront", body: 'Visit a product page to confirm the offer banner appears. The banner shows customers the code and an option to copy it — redemption still happens at checkout through Shopify.' },
+                        ].map(({ step, title, body }) => (
+                          <div key={step} style={{ display: "flex", gap: "16px" }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
+                            <BlockStack gap="100">
+                              <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
+                              <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                            </BlockStack>
+                          </div>
+                        ))}
+                      </BlockStack>
+                      <InlineStack gap="200">
+                        <Button variant="primary" onClick={() => navigate("/app/coupons/new")}>Create an offer</Button>
+                        <Button variant="plain" url="https://admin.shopify.com/discounts" external target="_top">Shopify Discounts</Button>
+                      </InlineStack>
+                    </BlockStack>
+                  )}
+                </Box>
+              </div>
+            </Collapsible>
+          </BlockStack>
+        </Card>
+      </div>
+    );
   };
 
   const LaunchTrack = () => (
@@ -542,14 +684,18 @@ export default function Index() {
 
   const emptyStateMarkup = (
     <EmptyState
-      heading="Create your first sale"
+      heading="No sales yet"
       action={{
-        content: "Create New Sale",
+        content: "Create Your First Sale",
         onAction: () => navigate("/app/sales/new"),
+      }}
+      secondaryAction={{
+        content: "Read Setup Guide",
+        onAction: () => { setSetupOpen(true); setSetupDismissed(false); window.scrollTo({ top: 0, behavior: "smooth" }); },
       }}
       image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
     >
-      <p>Track and manage your sales easily.</p>
+      <p>Create a sale to automatically apply discounts to your products for a set time. Use the Setup Guide above for step-by-step instructions.</p>
     </EmptyState>
   );
 
@@ -590,12 +736,14 @@ export default function Index() {
 
           {cronWarning && (
              <div style={{ marginBottom: "2rem" }}>
-                <Banner tone="critical" title="Cron Service Disconnected">
-                    <p>The automated job scheduler hasn't run recently. Scheduled sales and expirations will not process automatically until cron is restored.</p>
+                <Banner tone="warning" title="Scheduled activation may be delayed">
+                    <p>The background scheduler has not run recently. Scheduled sales will not start or end automatically until it resumes. You can activate or deactivate any sale manually from this dashboard in the meantime.</p>
                 </Banner>
              </div>
           )}
           
+          <SetupGuide />
+
           {!trackDismissed && (
             <div style={{ marginBottom: "2rem" }}>
               <LaunchTrack />

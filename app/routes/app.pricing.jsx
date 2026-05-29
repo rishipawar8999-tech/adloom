@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { Page, Layout, Text, BlockStack, InlineStack, Button, Icon, Divider, Box, Banner, Modal } from "@shopify/polaris";
+import { Page, Layout, Text, BlockStack, InlineStack, Button, Icon, Divider, Box, Banner, Modal, Tooltip } from "@shopify/polaris";
 import { StarFilledIcon } from "@shopify/polaris-icons";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSubmit, useActionData, useLocation, useNavigate } from "@remix-run/react";
-import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { getPlanUsage, getPlan } from "../models/billing.server";
-import { Tooltip } from "@shopify/polaris";
 
 const TIERS = { "Free": 0, "Basic": 1, "Growth": 2, "Pro": 3 };
 function getTier(planName) {
@@ -435,8 +433,8 @@ export default function PricingPage() {
   const { usage, celebrate, cancelled, planName } = useLoaderData();
   const actionData = useActionData();
   const location = useLocation();
-  const shopify = useAppBridge();
   const currentPlan = usage?.plan || "Free";
+
   const hasEverPurchased = usage?.hasEverPurchased || false;
   const trialDaysRemaining = usage?.trialDaysRemaining || 0;
   const activeFrom = usage?.activeFrom;

@@ -26,6 +26,7 @@ import {
   Icon,
   Modal,
   Badge,
+  List,
 } from "@shopify/polaris";
 import { LockIcon } from "@shopify/polaris-icons";
 
