@@ -411,7 +411,8 @@ export async function action({ request }) {
   return redirect(`/app?success=true&count=${updatedCount || 0}`);
   } catch (error) {
     console.error("Action failed:", error);
-    return json({ errors: { base: "Failed to create sale. Please try again." } }, { status: 500 });
+    const msg = (error.message && (error.message.includes("Shopify API Error") || error.message.includes("Cannot activate"))) ? error.message : "Failed to create sale. Please try again.";
+    return json({ errors: { base: msg } }, { status: 500 });
   }
 }
 
@@ -772,9 +773,14 @@ export default function NewSale() {
             <Card>
                 <BlockStack gap="400">
                     <Text as="h2" variant="headingSm">Applies to</Text>
-                    {["collections", "tags", "vendors", "all"].includes(appliesToType) && (
+                    {["collections", "tags", "vendors"].includes(appliesToType) && (
                         <Banner tone="info">
                            <p><strong>Note:</strong> Sales operate on a snapshot. Products added to this target after the sale is created will not be automatically discounted.</p>
+                        </Banner>
+                    )}
+                    {appliesToType === "all" && (
+                        <Banner tone="warning">
+                           <p><strong>Note:</strong> For performance and App Store compliance, "Whole Store" sales are limited to your first 5,000 products. If your catalog is larger, please create separate sales targeting specific collections.</p>
                         </Banner>
                     )}
                     <InlineStack gap="200">

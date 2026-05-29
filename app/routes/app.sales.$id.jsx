@@ -223,7 +223,8 @@ export async function action({ request, params }) {
   return json({ success: true, message: "Sale updated successfully." });
   } catch (error) {
     console.error("Action failed:", error);
-    return json({ errors: { base: "Failed to update sale. Please try again." } }, { status: 500 });
+    const msg = (error.message && (error.message.includes("Shopify API Error") || error.message.includes("Cannot activate"))) ? error.message : "Failed to update sale. Please try again.";
+    return json({ errors: { base: msg } }, { status: 500 });
   }
 }
 

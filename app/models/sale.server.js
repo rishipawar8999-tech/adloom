@@ -235,7 +235,11 @@ export async function applySale(saleId, admin) {
       include: { items: true },
     });
 
-    if (!sale || sale.status === "ACTIVE" || sale.status === "COMPLETED") return;
+    if (!sale) return;
+    if (sale.status === "ACTIVE") return;
+    if (sale.status === "COMPLETED") {
+      throw new Error("Cannot activate a sale that is already completed.");
+    }
 
     const itemsToUpdate = [];
     const BATCH_SIZE = 250;
@@ -400,6 +404,7 @@ export async function applySale(saleId, admin) {
         const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
         if (userErrors.length > 0) {
             console.error(`Bulk update user errors for product ${productId}:`, userErrors);
+            throw new Error(`Shopify API Error: ${userErrors[0].message}`);
         }
         
         // Tag mutations
@@ -417,6 +422,7 @@ export async function applySale(saleId, admin) {
         }
       } catch (bulkError) {
         console.error(`Error bulk updating product ${productId}:`, bulkError);
+        throw bulkError;
       }
     }
 
@@ -587,6 +593,7 @@ export async function revertSale(saleId, admin) {
         const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
         if (userErrors.length > 0) {
             console.error(`Revert bulk update user errors for product ${productId}:`, userErrors);
+            throw new Error(`Shopify API Error: ${userErrors[0].message}`);
         }
         
         // Tag mutations (Reversed from applySale)
