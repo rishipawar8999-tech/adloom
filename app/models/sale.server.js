@@ -391,20 +391,28 @@ export async function applySale(saleId, admin) {
 
     for (const productId in updatesByProduct) {
       try {
-        const variants = updatesByProduct[productId].map(item => ({
+        const allVariants = updatesByProduct[productId].map(item => ({
           id: item.variantId,
           price: item.newPrice,
           compareAtPrice: item.newCompareAt
         }));
 
-        const response = await admin.graphql(mutation, {
-          variables: { productId, variants },
-        });
-        const resData = await response.json();
-        const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
-        if (userErrors.length > 0) {
-            console.error(`Bulk update user errors for product ${productId}:`, userErrors);
-            throw new Error(`Shopify API Error: ${userErrors[0].message}`);
+        // Fix M-1: Chunk variants into batches of 50 to avoid Shopify mutation limits
+        const variantChunks = [];
+        for (let i = 0; i < allVariants.length; i += 50) {
+           variantChunks.push(allVariants.slice(i, i + 50));
+        }
+
+        for (const variants of variantChunks) {
+           const response = await admin.graphql(mutation, {
+             variables: { productId, variants },
+           });
+           const resData = await response.json();
+           const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
+           if (userErrors.length > 0) {
+               console.error(`Bulk update user errors for product ${productId}:`, userErrors);
+               throw new Error(`Shopify API Error: ${userErrors[0].message}`);
+           }
         }
         
         // Tag mutations
@@ -583,17 +591,23 @@ export async function revertSale(saleId, admin) {
           }
         `;
 
-        const response = await admin.graphql(mutation, {
-          variables: {
-            productId,
-            variants: updatesByProduct[productId]
-          },
-        });
-        const resData = await response.json();
-        const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
-        if (userErrors.length > 0) {
-            console.error(`Revert bulk update user errors for product ${productId}:`, userErrors);
-            throw new Error(`Shopify API Error: ${userErrors[0].message}`);
+        // Fix M-1: Chunk variants into batches of 50
+        const allVariants = updatesByProduct[productId];
+        const variantChunks = [];
+        for (let i = 0; i < allVariants.length; i += 50) {
+           variantChunks.push(allVariants.slice(i, i + 50));
+        }
+
+        for (const variants of variantChunks) {
+           const response = await admin.graphql(mutation, {
+             variables: { productId, variants },
+           });
+           const resData = await response.json();
+           const userErrors = resData.data?.productVariantsBulkUpdate?.userErrors || [];
+           if (userErrors.length > 0) {
+               console.error(`Revert bulk update user errors for product ${productId}:`, userErrors);
+               throw new Error(`Shopify API Error: ${userErrors[0].message}`);
+           }
         }
         
         // Tag mutations (Reversed from applySale)
