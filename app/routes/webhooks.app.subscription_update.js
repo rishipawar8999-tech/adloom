@@ -5,8 +5,8 @@ import { PLAN_LIMITS, getPlanWithAdmin } from "../models/billing.server";
 
 export const action = async ({ request }) => {
   try {
-  const { topic, shop, payload } = await authenticate.webhook(request);
-  let { admin } = await authenticate.webhook(request);
+  const { topic, shop, payload, admin: authAdmin } = await authenticate.webhook(request);
+  let admin = authAdmin;
 
   if (topic !== "APP_SUBSCRIPTIONS_UPDATE") {
     return new Response("Invalid topic", { status: 400 });
