@@ -15,7 +15,7 @@ import {
   Banner,
   Icon,
   Modal,
-  Badge,
+  Badge, Checkbox,
 } from "@shopify/polaris";
 import { LockIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -45,6 +45,7 @@ export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designA
     embedPosition: "after",
     layoutMode: "banner",
     preset: "announcement",
+    showClock: true,
   };
 
   // Parse existing style/content JSON or set defaults
@@ -243,6 +244,16 @@ export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designA
       </FormLayout>
 
       <Box paddingBlockStart="400">
+        <Checkbox 
+           label="Show countdown clock" 
+           helpText="If unchecked, this banner will only show the title and subtitle."
+           checked={config.showClock} 
+           onChange={(v) => handleConfigChange("showClock", v)} 
+        />
+      </Box>
+      {config.showClock && (
+      <>
+      <Box paddingBlockStart="400">
         <Text variant="headingSm" as="h3">Time Labels (Short)</Text>
       </Box>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
@@ -251,6 +262,8 @@ export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designA
         <TextField label="Minutes" value={config.labels.minutes} onChange={(v) => handleLabelChange("minutes", v)} autoComplete="off" />
         <TextField label="Seconds" value={config.labels.seconds} onChange={(v) => handleLabelChange("seconds", v)} autoComplete="off" />
       </div>
+      </>
+      )}
     </BlockStack>
   );
 

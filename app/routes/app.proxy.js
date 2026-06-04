@@ -67,7 +67,14 @@ export async function loader({ request }) {
   if (activeSale) {
     responseData.timer = {
        ...(activeSale.timer || {}),
-       hasTimer: !!activeSale.timer,
+       hasTimer: activeSale.timer ? (() => {
+           try {
+               const style = JSON.parse(activeSale.timer.style);
+               return style.showClock !== false;
+           } catch (e) {
+               return true;
+           }
+       })() : false,
        endTime: activeSale.endTime, // Always pass endTime just in case, but frontend checks hasTimer
        // Fallbacks if no timer is attached
        title: activeSale.timer ? activeSale.timer.name : activeSale.title,

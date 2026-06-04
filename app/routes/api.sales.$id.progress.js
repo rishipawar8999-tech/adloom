@@ -3,7 +3,7 @@ import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
 export async function loader({ request, params }) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
   const saleId = params.id;
 
   if (!saleId) {
@@ -12,10 +12,10 @@ export async function loader({ request, params }) {
 
   const sale = await prisma.sale.findUnique({
     where: { id: saleId },
-    select: { status: true, processedItems: true, totalItems: true },
+    select: { status: true, processedItems: true, totalItems: true, shop: true },
   });
 
-  if (!sale) {
+  if (!sale || sale.shop !== session.shop) {
     return json({ error: "Sale not found" }, { status: 404 });
   }
 

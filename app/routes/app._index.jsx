@@ -162,6 +162,17 @@ export default function Index() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedTab, setSelectedTab] = useState(0);
   const shopify = useAppBridge();
+  const revalidator = useRevalidator();
+
+  useEffect(() => {
+    const isProcessing = sales.some(s => s.status === "PENDING" && new Date(s.startTime) <= new Date());
+    if (isProcessing) {
+      const interval = setInterval(() => {
+        revalidator.revalidate();
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [sales, revalidator]);
 
   // Launch Track logic
   const [trackDismissed, setTrackDismissed] = useState(false);
@@ -542,7 +553,7 @@ export default function Index() {
           </div>
         </IndexTable.Cell>
         <IndexTable.Cell>
-          {status === "PENDING" && totalItems > 0 && processedItems < totalItems ? (
+          {status === "PENDING" && new Date(startTime) <= new Date() ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '120px' }}>
                <Badge tone="attention">Processing</Badge>
                <div style={{ width: '100%', backgroundColor: '#dfe3e8', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>

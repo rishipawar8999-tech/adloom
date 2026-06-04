@@ -220,6 +220,12 @@ export async function action({ request, params }) {
     tagsToRemove,
   });
 
+  const now = new Date();
+  if (start <= now && sale.status !== "ACTIVE") {
+    // Fire and forget so we don't timeout, frontend can poll progress
+    applySale(params.id, admin).catch(err => console.error("Async applySale failed:", err));
+  }
+
   return json({ success: true, message: "Sale updated successfully." });
   } catch (error) {
     console.error("Action failed:", error);
