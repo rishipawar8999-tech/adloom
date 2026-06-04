@@ -76,13 +76,18 @@ export async function action({ request }) {
   }
 
   // Shopify Discount Validation
+  const forceSave = formData.get("forceSave") === "true";
   const validation = await validateShopifyDiscount(couponCode, admin);
   
   if (!validation.ok) {
-    return json({ 
-        errors: { couponCode: validation.message }, 
-        isVerificationError: !!validation.isVerificationError 
-    }, { status: 400 });
+    if (validation.isVerificationError && forceSave) {
+        // Skip validation and proceed
+    } else {
+        return json({ 
+            errors: { couponCode: validation.message }, 
+            isVerificationError: !!validation.isVerificationError 
+        }, { status: 400 });
+    }
   }
 
   const products = JSON.parse(productsStr || "[]");
@@ -278,19 +283,19 @@ export default function NewCouponPage() {
     setIsDirty(false);
     // 1. Validate Required Fields
     if (!offerTitle.trim()) {
-      shopify.toast.show("Offer Title is required", { isError: true });
+      shopify.toast.show("Please add a title for this offer.", { isError: true });
       return;
     }
     if (!couponCode.trim()) {
-      shopify.toast.show("Coupon Code is required", { isError: true });
+      shopify.toast.show("Please enter a discount code.", { isError: true });
       return;
     }
     if (!startDate || !endDate) {
-      shopify.toast.show("Please select start and end dates", { isError: true });
+      shopify.toast.show("Please set the start and end dates for this offer.", { isError: true });
       return;
     }
     if (!startTime || !endTime) {
-      shopify.toast.show("Please select start and end times", { isError: true });
+      shopify.toast.show("Please set the start and end times for this offer.", { isError: true });
       return;
     }
 
@@ -691,13 +696,16 @@ export default function NewCouponPage() {
             
             {actionData?.isVerificationError && (
                <Box paddingBlockStart="200">
-                 <Button
-                   variant="tertiary"
-                   fullWidth
-                   onClick={() => handleSubmit(true)}
+                 <Banner
+                   title="Discount Code Not Verified"
+                   tone="warning"
+                   action={{
+                     content: "Save anyway",
+                     onAction: () => handleSubmit(true)
+                   }}
                  >
-                   Save anyway
-                 </Button>
+                   <p>We strongly recommend verifying this code in your Shopify admin to ensure it works at checkout.</p>
+                 </Banner>
                </Box>
             )}
           </BlockStack>
@@ -709,7 +717,7 @@ export default function NewCouponPage() {
         title="Upgrade to Unlock Premium Designs"
         primaryAction={{
           content: "View Plans",
-          onAction: () => navigate("/app/pricing"),
+          onAction: () => navigate(`/app/pricing${window.location.search}`),
         }}
         secondaryActions={[
           {

@@ -67,10 +67,10 @@ export default function TimersPage() {
   // Success toast on redirect
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      shopify.toast.show("Timer saved successfully");
+      shopify.toast.show("Your timer has been saved.");
     }
     if (searchParams.get("deleted") === "true") {
-      shopify.toast.show("Timer deleted");
+      shopify.toast.show("Your timer has been deleted.");
     }
   }, [searchParams, shopify]);
 
@@ -82,7 +82,7 @@ export default function TimersPage() {
   const handleDelete = useCallback(() => {
     if (timerToDelete) {
       submit({ action: "delete", id: timerToDelete.id }, { method: "post" });
-      shopify.toast.show(`"${timerToDelete.name}" deleted`);
+      shopify.toast.show(`"${timerToDelete.name}" has been deleted.`);
     }
     setDeleteModalOpen(false);
     setTimerToDelete(null);

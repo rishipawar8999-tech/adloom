@@ -169,6 +169,8 @@ export default function Index() {
     const dismissed = localStorage.getItem("loom_track_dismissed");
     if (dismissed) setTrackDismissed(true);
   }, []);
+  
+  const [showReinstallBanner, setShowReinstallBanner] = useState(isReinstall);
 
   const [cronWarning, setCronWarning] = useState(false);
   useEffect(() => {
@@ -235,17 +237,19 @@ export default function Index() {
   useEffect(() => {
     if (actionData?.success) {
       if (actionData.action === "revert" || actionData.action === "bulkDeactivate") {
-        shopify.toast.show("Sale paused successfully");
+        shopify.toast.show("Your sale has been paused.");
       } else if (actionData.action === "delete" || actionData.action === "bulkDelete") {
-        shopify.toast.show("Sale deleted successfully");
+        shopify.toast.show("The sale was deleted.");
       } else if (actionData.action === "activate") {
-        shopify.toast.show(`Sale activated — ${actionData.count} prices updated`);
+        shopify.toast.show(`Your sale is live! ${actionData.count} prices have been updated.`);
       } else {
-        shopify.toast.show("Action successful");
+        shopify.toast.show("Success!");
       }
     } else if (actionData?.error) {
        if (actionData.error.includes("Conflict detected")) {
           setConflictError(actionData.error);
+       } else if (actionData.error === "Cannot activate, maximum global variant limit reached (50,000).") {
+          shopify.toast.show("Limit reached: You have too many items on sale. Please remove some first.", { isError: true });
        } else {
           shopify.toast.show(actionData.error, { isError: true });
        }
@@ -408,12 +412,12 @@ export default function Index() {
 
   const LaunchTrack = () => (
     <div className="animate-fade-in-up stagger-1">
-      {isReinstall && (
+      {showReinstallBanner && (
         <Banner
           title="Welcome back! Your account is on the Free plan"
           tone="warning"
           action={{ content: "Choose a plan", url: "/app/pricing" }}
-          onDismiss={() => {}}
+          onDismiss={() => setShowReinstallBanner(false)}
         >
           <p>
             You previously had a paid subscription. Please select a plan to restore your limits.
@@ -578,8 +582,8 @@ export default function Index() {
         const activeIds = selectedResources.filter(id =>
           sales.find(s => s.id === id && s.status === "ACTIVE")
         );
-        if (activeIds.length === 0) {
-          shopify.toast.show("No active sales selected", { isError: true });
+        if (selectedResources.length === 0) {
+          shopify.toast.show("Please select at least one sale first.", { isError: true });
           return;
         }
         requestConfirm(

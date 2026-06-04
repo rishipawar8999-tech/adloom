@@ -237,8 +237,8 @@ export async function applySale(saleId, admin) {
 
     if (!sale) return;
     if (sale.status === "ACTIVE") return;
-    if (sale.status === "COMPLETED") {
-      throw new Error("Cannot activate a sale that is already completed.");
+    if (sale.status === "COMPLETED" && new Date() >= new Date(sale.endTime)) {
+      throw new Error("Cannot activate a sale that has already expired. Please extend the end date first.");
     }
 
     const itemsToUpdate = [];

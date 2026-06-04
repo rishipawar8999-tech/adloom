@@ -73,7 +73,7 @@ const helpTopics = [
       },
       {
         q: "Is there a free trial?",
-        a: "Yes. All paid plans include a 7-day trial period."
+        a: "Yes. All paid plans include a 3-day trial period."
       }
     ]
   }

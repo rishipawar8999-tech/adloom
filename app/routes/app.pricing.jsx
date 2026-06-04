@@ -20,13 +20,7 @@ function isAnnual(planName) {
 function validateTransition(current, target) {
   if (current === "Free" || !current) return { valid: true };
   if (current === target) return { valid: false, reason: "Active Plan" };
-
-  const currentAnn = isAnnual(current);
-  const targetAnn = isAnnual(target);
-
-  if (currentAnn && !targetAnn) {
-    return { valid: false, reason: "Cannot switch directly from Annual to Monthly." };
-  }
+  
   return { valid: true };
 }
 
@@ -275,7 +269,7 @@ function PlanCard({ plan, currentPlan, onDowngradeRequest }) {
   const transition = validateTransition(currentPlan, plan.id);
   const isDisabled = isCurrent || !transition.valid;
   
-  const isDowngrade = getTier(plan.id) < getTier(currentPlan) && !isAnnual(plan.id);
+  const isDowngrade = getTier(plan.id) < getTier(currentPlan) || (getTier(plan.id) === getTier(currentPlan) && isAnnual(currentPlan) && !isAnnual(plan.id));
   const label = isCurrent ? "Current Plan" : (isDowngrade ? "Downgrade" : plan.buttonLabel);
   
   const handleSelect = () => {

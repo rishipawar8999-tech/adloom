@@ -15,12 +15,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!res.ok) return;
         
         const data = await res.json();
-        const timerData = data.timer?.timer || data.timer;
+        let timerData = data.timer?.timer || data.timer;
         const serverTime = data.serverTime ? new Date(data.serverTime).getTime() : Date.now();
+        const isDesignMode = container.dataset.designMode === "true";
 
-        if (!timerData) {
+        if (!timerData && !isDesignMode) {
           container.style.display = "none";
           return;
+        }
+
+        if (!timerData && isDesignMode) {
+           timerData = {
+               endTime: new Date(Date.now() + 86400000).toISOString(),
+               style: JSON.stringify({
+                   title: "Flash Sale Ends Soon!",
+                   subtitle: "Don't miss out",
+                   backgroundColor: "#000000",
+                   titleColor: "#ffffff",
+                   timerColor: "#ffffff",
+                   labels: { days: "D", hours: "H", minutes: "M", seconds: "S" }
+               })
+           };
         }
 
         const { endTime, style } = timerData;

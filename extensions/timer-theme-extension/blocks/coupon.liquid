@@ -5,7 +5,8 @@
     data-tags="{{ product.tags | join: ',' | escape }}"
     data-vendor="{{ product.vendor | escape }}"
     data-collections="{{ product.collections | map: 'id' | join: ',' }}"
-    data-shop-domain="{{ shop.domain }}">
+    data-shop-domain="{{ shop.domain }}"
+    {% if request.design_mode %}data-design-mode="true"{% endif %}>
   </div>
   <script src="{{ 'coupon.js' | asset_url }}" defer="defer"></script>
   {{ 'coupon.css' | asset_url | stylesheet_tag }}

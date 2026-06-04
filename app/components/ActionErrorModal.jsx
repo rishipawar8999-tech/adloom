@@ -27,7 +27,7 @@ export function ActionErrorModal() {
       title={isLimitError ? "Plan Limit Reached" : "Submission Error"}
       primaryAction={isLimitError ? {
         content: "Upgrade Plan",
-        onAction: () => navigate("/app/pricing"),
+        onAction: () => navigate(`/app/pricing${window.location.search}`),
       } : {
         content: "Okay",
         onAction: () => setShowModal(false),

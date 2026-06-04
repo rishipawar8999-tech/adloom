@@ -22,6 +22,14 @@ export async function validateShopifyDiscount(code, admin) {
             status
             title
           }
+          ... on DiscountCodeBxgy {
+            status
+            title
+          }
+          ... on DiscountCodeApp {
+            status
+            title
+          }
         }
       }
     }
@@ -38,7 +46,7 @@ export async function validateShopifyDiscount(code, admin) {
       const upperResponse = await admin.graphql(query, { variables: { code: code.toUpperCase() } });
       const { data: upperData } = await upperResponse.json();
       if (!upperData?.codeDiscountNodeByCode) {
-        return { ok: false, message: "This discount code was not found in Shopify. Create it in Shopify first, then add it here." };
+        return { ok: false, isVerificationError: true, message: "We couldn't find this discount code in your Shopify admin. Make sure it's created there first so it works at checkout." };
       }
       return { ok: true };
     }
@@ -47,11 +55,12 @@ export async function validateShopifyDiscount(code, admin) {
     // Check status
     const status = node.codeDiscount?.status;
     if (status === "EXPIRED") {
-       return { ok: false, message: "This discount code has expired in Shopify." };
+       return { ok: false, isVerificationError: true, message: "This discount code has expired in your Shopify admin. Please reactivate it or use a different code." };
     }
     
     if (status !== "ACTIVE" && status !== "SCHEDULED") {
-        return { ok: false, message: `This discount code is currently ${status.toLowerCase()} in Shopify.` };
+        const displayStatus = status ? status.toLowerCase() : "unavailable";
+        return { ok: false, isVerificationError: true, message: `This discount code is currently ${displayStatus} in your Shopify admin. It won't work for customers right now.` };
     }
     
     return { ok: true };

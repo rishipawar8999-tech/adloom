@@ -212,7 +212,8 @@ export async function checkGlobalVariantLimit(request, newVariantIds, targetStar
 
 export async function checkDesignLimit(request) {
     const { plan } = await getPlan(request);
+    const basePlan = plan.replace(" Annual", "");
     // Growth and Pro allow custom designs
-    if (plan === "Growth" || plan === "Pro") return true; 
+    if (basePlan === "Growth" || basePlan === "Pro") return true; 
     return false;
 }

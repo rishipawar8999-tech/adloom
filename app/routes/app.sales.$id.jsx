@@ -174,8 +174,8 @@ export async function action({ request, params }) {
   // Check for conflicts and limits across all active/scheduled sales
   // Treat input time as UTC initially so that the client offset (minutes from UTC) applies correctly.
   // This avoids server-local-time interference.
-  let start = new Date(startTime + "Z");
-  let end = new Date(endTime + "Z");
+  let start = new Date(startTime.endsWith("Z") ? startTime : startTime + "Z");
+  let end = new Date(endTime.endsWith("Z") ? endTime : endTime + "Z");
 
   // Apply timezone adjustment if available
   if (clientTimezoneOffset) {
@@ -354,22 +354,22 @@ export default function EditSale() {
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      shopify.toast.show("Sale Title is required", { isError: true });
+      shopify.toast.show("Please give your sale a title.", { isError: true });
       return;
     }
     
     if (!value || isNaN(value) || parseFloat(value) <= 0) {
-      shopify.toast.show("Please enter a valid discount amount greater than 0", { isError: true });
+      shopify.toast.show("Please enter a discount amount greater than zero.", { isError: true });
       return;
     }
 
     if (!startDate || !startTime) {
-      shopify.toast.show("Start date and time are required.", { isError: true });
+      shopify.toast.show("Please specify when this sale should start.", { isError: true });
       return;
     }
 
     if (setEndTimer && (!endDate || !endTime)) {
-      shopify.toast.show("End date and time are required when 'Set end date' is checked.", { isError: true });
+      shopify.toast.show("Please specify when this sale should end.", { isError: true });
       return;
     }
 

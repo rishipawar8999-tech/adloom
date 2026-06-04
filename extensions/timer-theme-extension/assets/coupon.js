@@ -42,12 +42,20 @@ async function initLoomCoupons() {
       if (!res.ok) return;
       
       const data = await res.json();
-      if (!data.coupons || data.coupons.length === 0) {
+      let coupons = data.coupons;
+      const isDesignMode = container.dataset.designMode === "true";
+
+      if ((!coupons || coupons.length === 0) && !isDesignMode) {
         container.style.display = "none";
         return;
       }
-
-      const coupons = data.coupons;
+      
+      if ((!coupons || coupons.length === 0) && isDesignMode) {
+         coupons = [
+            { offerTitle: "10% OFF Entire Order", couponCode: "WELCOME10", description: "Use this code at checkout" },
+            { offerTitle: "Free Shipping", couponCode: "FREESHIP", description: "On orders over $50" }
+         ];
+      }
       const maxVisible = 2;
       const visibleCoupons = coupons.slice(0, maxVisible);
       const hiddenCoupons = coupons.slice(maxVisible);

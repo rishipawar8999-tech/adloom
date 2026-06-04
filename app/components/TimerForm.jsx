@@ -19,10 +19,12 @@ import {
 } from "@shopify/polaris";
 import { LockIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useNavigate } from "@remix-run/react";
 
 export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designAllowed }) {
   // --- State ---
   const shopify = useAppBridge();
+  const navigate = useNavigate();
   const [name, setName] = useState(timer?.name || "");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
@@ -174,11 +176,11 @@ export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designA
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      shopify.toast.show("Internal Name is required", { isError: true });
+      shopify.toast.show("Please provide an internal name for this timer.", { isError: true });
       return;
     }
     if (!config.title?.trim()) {
-      shopify.toast.show("Banner Title is required", { isError: true });
+      shopify.toast.show("Please add a title for your timer banner.", { isError: true });
       return;
     }
 
@@ -424,7 +426,7 @@ export function TimerForm({ timer, onSave, isLoading, disabled, onDirty, designA
         title="Upgrade to Unlock Premium Designs"
         primaryAction={{
           content: "View Plans",
-          onAction: () => window.location.href = "/app/pricing",
+          onAction: () => navigate(`/app/pricing${window.location.search}`),
         }}
         secondaryActions={[
           {

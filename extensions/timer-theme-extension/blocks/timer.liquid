@@ -1,4 +1,4 @@
-<div class="rockit-timer-wrapper" style="display: none;" data-product-id="{{ product.id }}">
+<div class="rockit-timer-wrapper" style="display: none;" data-product-id="{{ product.id }}" {% if request.design_mode %}data-design-mode="true"{% endif %}>
   <div class="rockit-timer-content">
     <!-- Timer rendered by JS -->
   </div>

@@ -45,12 +45,12 @@ export default function CouponsPage() {
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      shopify.toast.show(searchParams.get("action") === "created" ? "Offer created successfully" : "Offer saved successfully");
+      shopify.toast.show(searchParams.get("action") === "created" ? "Your offer has been created successfully!" : "Your offer has been updated successfully!");
       setSearchParams({}, { replace: true });
     } else if (actionData?.success && actionData?.action === "deleted") {
-      shopify.toast.show("Offer deleted successfully");
+      shopify.toast.show("Your offer has been deleted.");
     }
-  }, [searchParams, setSearchParams, actionData]);
+  }, [searchParams, setSearchParams, actionData, shopify]);
 
   const statusBadge = (coupon) => {
     const now = new Date();
