@@ -118,17 +118,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (config.subtitle) html += `<div style="opacity: 0.9;">${config.subtitle}</div>`;
         html += `</div>`;
 
-        html += `<div style="display: flex; gap: 15px; align-items: center;">`;
-        const labels = config.labels || { days: "D", hours: "H", minutes: "M", seconds: "S" };
-        ["days", "hours", "minutes", "seconds"].forEach(unit => {
-          html += `
-            <div style="text-align: center; line-height: 1;">
-              <div class="rockit-${unit}" style="font-weight: 800; font-family: monospace; font-size: 1.1em;">00</div>
-              <div style="font-size: 0.7em; text-transform: uppercase; opacity: 0.7;">${labels[unit]}</div>
-            </div>
-          `;
-        });
-        html += `</div></div>`;
+        if (timerData.hasTimer !== false) {
+           html += `<div style="display: flex; gap: 15px; align-items: center;">`;
+           const labels = config.labels || { days: "D", hours: "H", minutes: "M", seconds: "S" };
+           ["days", "hours", "minutes", "seconds"].forEach(unit => {
+             html += `
+               <div style="text-align: center; line-height: 1;">
+                 <div class="rockit-${unit}" style="font-weight: 800; font-family: monospace; font-size: 1.1em;">00</div>
+                 <div style="font-size: 0.7em; text-transform: uppercase; opacity: 0.7;">${labels[unit]}</div>
+               </div>
+             `;
+           });
+           html += `</div>`;
+        }
+        html += `</div>`;
         
         container.innerHTML = html;
 
@@ -159,8 +162,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (secondsEl) secondsEl.innerText = seconds < 10 ? `0${seconds}` : seconds;
         };
 
-        updateTimer();
-        const interval = setInterval(updateTimer, 1000);
+        if (timerData.hasTimer !== false) {
+           updateTimer();
+           const interval = setInterval(updateTimer, 1000);
+        }
 
       } catch (e) {
         console.error("Loom Timer Error:", e);

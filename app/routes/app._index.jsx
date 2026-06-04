@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { useLoaderData, useActionData, useNavigation, useSubmit, useNavigate, useSearchParams, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { useLoaderData, useActionData, useNavigation, useSubmit, useNavigate, useSearchParams, useRouteError, isRouteErrorResponse, useRevalidator } from "@remix-run/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { XIcon, CheckIcon } from "@shopify/polaris-icons";
 import {
@@ -528,7 +528,7 @@ export default function Index() {
   };
 
   const rowMarkup = filteredSales.map(
-    ({ id, title, discountType, value, status, startTime, endTime, _count }, index) => (
+    ({ id, title, discountType, value, status, startTime, endTime, _count, processedItems, totalItems }, index) => (
       <IndexTable.Row
         id={id}
         key={id}
@@ -542,11 +542,23 @@ export default function Index() {
           </div>
         </IndexTable.Cell>
         <IndexTable.Cell>
-          <Badge tone={status === "ACTIVE" ? "success" : status === "PENDING" ? "attention" : "warning"}>
-            <span className={status === "ACTIVE" ? "badge-pulse" : ""}>
-              {status === "PENDING" ? "Scheduled" : status === "COMPLETED" ? "Expired" : "Active"}
-            </span>
-          </Badge>
+          {status === "PENDING" && totalItems > 0 && processedItems < totalItems ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '120px' }}>
+               <Badge tone="attention">Processing</Badge>
+               <div style={{ width: '100%', backgroundColor: '#dfe3e8', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
+                  <div style={{ width: `${(processedItems / totalItems) * 100}%`, backgroundColor: '#008060', height: '100%', transition: 'width 0.3s ease' }}></div>
+               </div>
+               <div style={{ fontSize: '10px', color: '#6d7175', textAlign: 'center' }}>
+                  {processedItems} / {totalItems}
+               </div>
+            </div>
+          ) : (
+            <Badge tone={status === "ACTIVE" ? "success" : status === "PENDING" ? "attention" : "warning"}>
+              <span className={status === "ACTIVE" ? "badge-pulse" : ""}>
+                {status === "PENDING" ? "Scheduled" : status === "COMPLETED" ? "Expired" : "Active"}
+              </span>
+            </Badge>
+          )}
         </IndexTable.Cell>
         <IndexTable.Cell>
           <Tooltip content={formatDate(startTime)}>

@@ -63,11 +63,24 @@ export async function loader({ request }) {
     },
   });
 
-  const saleWithTimer = sales.find((s) => s.timer);
-  responseData.timer = saleWithTimer ? {
-    ...saleWithTimer.timer,
-    endTime: saleWithTimer.endTime,
-  } : null;
+  const activeSale = sales[0];
+  if (activeSale) {
+    responseData.timer = {
+       ...(activeSale.timer || {}),
+       hasTimer: !!activeSale.timer,
+       endTime: activeSale.endTime, // Always pass endTime just in case, but frontend checks hasTimer
+       // Fallbacks if no timer is attached
+       title: activeSale.timer ? activeSale.timer.name : activeSale.title,
+       style: activeSale.timer ? activeSale.timer.style : JSON.stringify({
+           backgroundColor: "#000000",
+           titleColor: "#ffffff",
+           timerColor: "#ffffff",
+           labels: { days: "D", hours: "H", minutes: "M", seconds: "S" }
+       })
+    };
+  } else {
+    responseData.timer = null;
+  }
 
   return json(responseData, {
     headers: { "Cache-Control": "private, max-age=5" }

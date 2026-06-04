@@ -383,12 +383,19 @@ export async function applySale(saleId, admin) {
       }
     `;
 
+    
+    await prisma.sale.update({
+      where: { id: saleId },
+      data: { totalItems: itemsToUpdate.length, processedItems: 0 },
+    });
+
     const updatesByProduct = itemsToUpdate.reduce((acc, item) => {
       if (!acc[item.productId]) acc[item.productId] = [];
       acc[item.productId].push(item);
       return acc;
     }, {});
 
+    let currentProcessed = 0;
     for (const productId in updatesByProduct) {
       try {
         const allVariants = updatesByProduct[productId].map(item => ({
@@ -431,6 +438,14 @@ export async function applySale(saleId, admin) {
       } catch (bulkError) {
         console.error(`Error bulk updating product ${productId}:`, bulkError);
         throw bulkError;
+      }
+      
+      currentProcessed += updatesByProduct[productId].length;
+      if (currentProcessed % 50 === 0 || currentProcessed === itemsToUpdate.length) {
+         await prisma.sale.update({
+            where: { id: saleId },
+            data: { processedItems: currentProcessed }
+         });
       }
     }
 

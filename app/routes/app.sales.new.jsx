@@ -405,7 +405,8 @@ export async function action({ request }) {
 
   let updatedCount = 0;
   if (start <= now) {
-    updatedCount = await applySale(sale.id, admin);
+    // Fire and forget so we don't timeout, frontend can poll progress
+    applySale(sale.id, admin).catch(err => console.error("Async applySale failed:", err));
   }
 
   return redirect(`/app?success=true&count=${updatedCount || 0}`);
@@ -435,8 +436,6 @@ export default function NewSale() {
   const [appliesToType, setAppliesToType] = useState("products"); // products, collections
   const [excludeDrafts, setExcludeDrafts] = useState(true);
   const [excludeOnSale, setExcludeOnSale] = useState(false);
-  const [excludeCertainProducts, setExcludeCertainProducts] = useState(false); // UI toggle only for now
-
   // Dates
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [startTime, setStartTime] = useState("00:00");
@@ -920,11 +919,7 @@ export default function NewSale() {
                             checked={excludeOnSale}
                             onChange={setExcludeOnSale}
                          />
-                         <Checkbox
-                            label="Exclude certain products from sale"
-                            checked={excludeCertainProducts}
-                            onChange={setExcludeCertainProducts}
-                         />
+                         
                     </BlockStack>
                 </BlockStack>
             </Card>

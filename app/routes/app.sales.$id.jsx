@@ -750,11 +750,7 @@ export default function EditSale() {
                             checked={excludeOnSale}
                             onChange={setExcludeOnSale}
                          />
-                         <Checkbox
-                            label="Exclude certain products from sale"
-                            checked={excludeCertainProducts}
-                            onChange={setExcludeCertainProducts}
-                         />
+                         
                     </BlockStack>
                 </BlockStack>
             </Card>
