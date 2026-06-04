@@ -58,7 +58,7 @@ export default function NewTimerPage() {
         <Layout>
           <Layout.Section>
             <Banner tone="warning" title="Limit Reached">
-              <p>You have reached the limit of active timers for your current plan. <Button variant="plain" url="/app/pricing">Upgrade now</Button> to create more.</p>
+              <p>You have reached the limit of active timers for your current plan. <Button variant="plain" onClick={() => navigate(`/app/pricing${window.location.search}`)}>Upgrade now</Button> to create more.</p>
             </Banner>
           </Layout.Section>
         </Layout>

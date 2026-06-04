@@ -416,7 +416,7 @@ export default function Index() {
         <Banner
           title="Welcome back! Your account is on the Free plan"
           tone="warning"
-          action={{ content: "Choose a plan", url: "/app/pricing" }}
+          action={{ content: "Choose a plan", onAction: () => navigate(`/app/pricing${window.location.search}`) }}
           onDismiss={() => setShowReinstallBanner(false)}
         >
           <p>
