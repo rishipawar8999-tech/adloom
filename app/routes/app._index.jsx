@@ -342,25 +342,27 @@ export default function Index() {
                       </Banner>
                       <BlockStack gap="300">
                         {[
-                          { step: "1", title: "Add the Sale Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Sale block. Save.' },
-                          { step: "2", title: "Create a Sale", body: 'Go to Sales → Create Sale. Give it a title, choose a discount type (% or fixed amount), and set your start and end times.' },
+                          { step: "1", title: "Add the Sale Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Sale block. Save.', action: { label: "Open Theme Editor", props: { url: "https://admin.shopify.com/themes/current/editor", external: true, target: "_top", variant: "primary" } } },
+                          { step: "2", title: "Create a Sale", body: 'Go to Sales → Create Sale. Give it a title, choose a discount type (% or fixed amount), and set your start and end times.', action: { label: "Create Sale", props: { onClick: () => navigate("/app/sales/new"), variant: "primary" } } },
                           { step: "3", title: "Choose What to Discount", body: 'Select specific products, a collection, tag, or vendor. Note: products are captured at the moment of creation — if you add products to a collection later, you will need to edit the sale to include them.' },
                           { step: "3", title: "Set Advanced Options (Optional)", body: 'Choose your discount strategy (compare-at pricing, keep current compare-at, etc.) and whether to exclude draft products.' },
                           { step: "5", title: "Activate", body: 'If your start time is in the past the sale activates immediately. Future start times are handled automatically by our scheduler. You can also activate manually from the dashboard.' },
-                        ].map(({ step, title, body }) => (
+                        ].map(({ step, title, body, action }) => (
                           <div key={step} style={{ display: "flex", gap: "16px" }}>
                             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
                             <BlockStack gap="100">
                               <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
                               <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                              {action && (
+                                 <Box paddingBlockStart="100">
+                                   <Button {...action.props}>{action.label}</Button>
+                                 </Box>
+                              )}
                             </BlockStack>
                           </div>
                         ))}
                       </BlockStack>
-                      <InlineStack gap="200">
-                        <Button variant="primary" onClick={() => navigate("/app/sales/new")}>Create your first sale</Button>
-                        <Button variant="plain" url="/app/help">Learn more</Button>
-                      </InlineStack>
+                      <Button variant="plain" url="/app/help">Learn more</Button>
                     </BlockStack>
                   )}
 
@@ -371,23 +373,25 @@ export default function Index() {
                       </Banner>
                       <BlockStack gap="300">
                         {[
-                          { step: "1", title: "Add the Timer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Timer block. Save.' },
-                          { step: "2", title: "Create a Timer", body: 'Go to Timers → Create Timer. Set a display name and optionally link it to a Sale so the countdown matches your sale end time.' },
+                          { step: "1", title: "Add the Timer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Timer block. Save.', action: { label: "Open Theme Editor", props: { url: "https://admin.shopify.com/themes/current/editor", external: true, target: "_top", variant: "primary" } } },
+                          { step: "2", title: "Create a Timer", body: 'Go to Timers → Create Timer. Set a display name and optionally link it to a Sale so the countdown matches your sale end time.', action: { label: "Create Timer", props: { onClick: () => navigate("/app/timers/new"), variant: "primary" } } },
                           { step: "3", title: "Publish and Test", body: 'Visit a product page on your storefront to confirm the timer appears. If it does not show, check that the Timer block is added and visible in your theme editor.' },
-                        ].map(({ step, title, body }) => (
+                        ].map(({ step, title, body, action }) => (
                           <div key={step} style={{ display: "flex", gap: "16px" }}>
                             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
                             <BlockStack gap="100">
                               <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
                               <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                              {action && (
+                                 <Box paddingBlockStart="100">
+                                   <Button {...action.props}>{action.label}</Button>
+                                 </Box>
+                              )}
                             </BlockStack>
                           </div>
                         ))}
                       </BlockStack>
-                      <InlineStack gap="200">
-                        <Button variant="primary" onClick={() => navigate("/app/timers/new")}>Create a timer</Button>
-                        <Button variant="plain" url="https://admin.shopify.com/themes/current/editor" external target="_top">Open Theme Editor</Button>
-                      </InlineStack>
+                      
                     </BlockStack>
                   )}
 
@@ -398,24 +402,26 @@ export default function Index() {
                       </Banner>
                       <BlockStack gap="300">
                         {[
-                          { step: "1", title: "Create a Discount in Shopify Admin", body: 'Go to your Shopify Admin → Discounts → Create discount. Set up your discount (percentage, fixed, BOGO, etc.) and copy the discount code.' },
-                          { step: "2", title: "Add the Offer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, add the Loom Offer block and save.' },
-                          { step: "3", title: "Create an Offer in Loom", body: 'Go to Offers → Create Offer. Enter the Shopify discount code you created in step 1, set a title, schedule, and choose which products to display it on.' },
+                          { step: "1", title: "Create a Discount in Shopify Admin", body: 'Go to your Shopify Admin → Discounts → Create discount. Set up your discount (percentage, fixed, BOGO, etc.) and copy the discount code.', action: { label: "Shopify Discounts", props: { url: "https://admin.shopify.com/discounts", external: true, target: "_top", variant: "primary" } } },
+                          { step: "2", title: "Add the Offer Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, add the Loom Offer block and save.', action: { label: "Open Theme Editor", props: { url: "https://admin.shopify.com/themes/current/editor", external: true, target: "_top", variant: "primary" } } },
+                          { step: "3", title: "Create an Offer in Loom", body: 'Go to Offers → Create Offer. Enter the Shopify discount code you created in step 1, set a title, schedule, and choose which products to display it on.', action: { label: "Create Offer", props: { onClick: () => navigate("/app/coupons/new"), variant: "primary" } } },
                           { step: "4", title: "Preview on Your Storefront", body: 'Visit a product page to confirm the offer banner appears. The banner shows customers the code and an option to copy it — redemption still happens at checkout through Shopify.' },
-                        ].map(({ step, title, body }) => (
+                        ].map(({ step, title, body, action }) => (
                           <div key={step} style={{ display: "flex", gap: "16px" }}>
                             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
                             <BlockStack gap="100">
                               <Text as="span" variant="bodyMd" fontWeight="semibold">{title}</Text>
                               <Text as="p" variant="bodySm" tone="subdued">{body}</Text>
+                              {action && (
+                                 <Box paddingBlockStart="100">
+                                   <Button {...action.props}>{action.label}</Button>
+                                 </Box>
+                              )}
                             </BlockStack>
                           </div>
                         ))}
                       </BlockStack>
-                      <InlineStack gap="200">
-                        <Button variant="primary" onClick={() => navigate("/app/coupons/new")}>Create an offer</Button>
-                        <Button variant="plain" url="https://admin.shopify.com/discounts" external target="_top">Shopify Discounts</Button>
-                      </InlineStack>
+                      
                     </BlockStack>
                   )}
                 </Box>
@@ -711,18 +717,7 @@ export default function Index() {
             </div>
           )}
 
-          <div style={{ marginBottom: "2rem" }}>
-             <Card>
-                <BlockStack gap="400">
-                   <Text as="h2" variant="headingMd" fontWeight="bold">Quick Actions</Text>
-                   <InlineStack gap="300">
-                      <Button variant="primary" onClick={() => navigate("/app/sales/new")}>Create Sale</Button>
-                      <Button onClick={() => navigate("/app/timers/new")}>Create Timer</Button>
-                      <Button onClick={() => navigate("/app/coupons/new")}>Create Offer</Button>
-                   </InlineStack>
-                </BlockStack>
-             </Card>
-          </div>
+          
 
           <SetupGuide />
 
