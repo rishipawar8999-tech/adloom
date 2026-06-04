@@ -172,6 +172,11 @@ export default function Index() {
   
   const [showReinstallBanner, setShowReinstallBanner] = useState(isReinstall);
 
+  const [reviewDismissed, setReviewDismissed] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem("loom_review_dismissed")) setReviewDismissed(true);
+  }, []);
+
   const [cronWarning, setCronWarning] = useState(false);
   useEffect(() => {
     if (!cronLastRun) {
@@ -326,10 +331,11 @@ export default function Index() {
                       </Banner>
                       <BlockStack gap="300">
                         {[
-                          { step: "1", title: "Create a Sale", body: 'Go to Sales → Create Sale. Give it a title, choose a discount type (% or fixed amount), and set your start and end times.' },
-                          { step: "2", title: "Choose What to Discount", body: 'Select specific products, a collection, tag, or vendor. Note: products are captured at the moment of creation — if you add products to a collection later, you will need to edit the sale to include them.' },
+                          { step: "1", title: "Add the Sale Block to Your Theme", body: 'Go to your Shopify Admin → Online Store → Themes → Customize. On the product page template, click Add Block and add the Loom Sale block. Save.' },
+                          { step: "2", title: "Create a Sale", body: 'Go to Sales → Create Sale. Give it a title, choose a discount type (% or fixed amount), and set your start and end times.' },
+                          { step: "3", title: "Choose What to Discount", body: 'Select specific products, a collection, tag, or vendor. Note: products are captured at the moment of creation — if you add products to a collection later, you will need to edit the sale to include them.' },
                           { step: "3", title: "Set Advanced Options (Optional)", body: 'Choose your discount strategy (compare-at pricing, keep current compare-at, etc.) and whether to exclude draft products.' },
-                          { step: "4", title: "Activate", body: 'If your start time is in the past the sale activates immediately. Future start times are handled automatically by our scheduler. You can also activate manually from the dashboard.' },
+                          { step: "5", title: "Activate", body: 'If your start time is in the past the sale activates immediately. Future start times are handled automatically by our scheduler. You can also activate manually from the dashboard.' },
                         ].map(({ step, title, body }) => (
                           <div key={step} style={{ display: "flex", gap: "16px" }}>
                             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1a1a1a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>{step}</div>
@@ -409,100 +415,6 @@ export default function Index() {
       </div>
     );
   };
-
-  const LaunchTrack = () => (
-    <div className="animate-fade-in-up stagger-1">
-      {showReinstallBanner && (
-        <Banner
-          title="Welcome back! Your account is on the Free plan"
-          tone="warning"
-          action={{ content: "Choose a plan", onAction: () => navigate(`/app/pricing${window.location.search}`) }}
-          onDismiss={() => setShowReinstallBanner(false)}
-        >
-          <p>
-            You previously had a paid subscription. Please select a plan to restore your limits.
-            Note: Shopify does not offer a new free trial if you have used one before.
-          </p>
-        </Banner>
-      )}
-      <Card padding="500">
-      <BlockStack gap="500">
-        <InlineStack align="space-between" verticalAlign="center">
-          <BlockStack gap="100">
-            <Text as="h2" variant="headingLg" fontWeight="bold">Launch Track</Text>
-            <Text as="p" variant="bodyMd" tone="subdued">Complete these steps to boost your sales.</Text>
-          </BlockStack>
-          <InlineStack gap="400" align="center">
-            <div style={{ textAlign: "right" }}>
-                <Text as="p" variant="heading2xl" fontWeight="bold" tone="highlight">{progress}%</Text>
-                <Text as="p" variant="bodyxs" tone="subdued" fontWeight="medium">COMPLETED</Text>
-            </div>
-            <Button variant="plain" icon={XIcon} onClick={handleDismissTrack} accessibilityLabel="Dismiss" />
-          </InlineStack>
-        </InlineStack>
-
-        <div style={{ height: "8px", background: "#f3f4f6", borderRadius: "9999px", overflow: "hidden" }}>
-          <div style={{ 
-            width: `${progress}%`, 
-            height: "100%", 
-            background: "linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)",
-            borderRadius: "9999px",
-            transition: "width 0.8s ease-out"
-          }} />
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "16px" }}>
-          {milestones.map((m) => (
-            <div key={m.id} style={{ 
-              padding: "16px", 
-              borderRadius: "12px", 
-              background: m.done ? "#f0fdf4" : "#ffffff",
-              border: `1px solid ${m.done ? "#bbf7d0" : "#e5e7eb"}`,
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              justifyContent: "space-between",
-              transition: "all 0.2s ease"
-            }}>
-              <BlockStack gap="200">
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                   <div style={{ 
-                      width: "20px", 
-                      height: "20px", 
-                      borderRadius: "50%", 
-                      background: m.done ? "#22c55e" : "#f3f4f6",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                      fontSize: "12px",
-                      flexShrink: 0
-                   }}>
-                     {m.done ? <Icon source={CheckIcon} tone="white" /> : null}
-                   </div>
-                   <Text as="span" variant="bodySm" fontWeight={m.done ? "bold" : "semibold"}>{m.label}</Text>
-                </div>
-                <Text as="p" variant="bodyXs" tone="subdued">{m.description}</Text>
-              </BlockStack>
-              {!m.done && (
-                 <Button 
-                   size="slim" 
-                   url={m.url} 
-                   external={m.external} 
-                   target={m.target} 
-                   onClick={m.onAction}
-                   variant="primary"
-                 >
-                   {m.actionLabel}
-                 </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </BlockStack>
-      </Card>
-    </div>
-  );
 
   // Confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -746,13 +658,50 @@ export default function Index() {
              </div>
           )}
           
-          <SetupGuide />
-
-          {!trackDismissed && (
+          {showReinstallBanner && (
             <div style={{ marginBottom: "2rem" }}>
-              <LaunchTrack />
+              <Banner
+                title="Welcome back! Your account is on the Free plan"
+                tone="warning"
+                action={{ content: "Choose a plan", onAction: () => navigate(`/app/pricing${window.location.search}`) }}
+                onDismiss={() => setShowReinstallBanner(false)}
+              >
+                <p>
+                  You previously had a paid subscription. Please select a plan to restore your limits.
+                  Note: Shopify does not offer a new free trial if you have used one before.
+                </p>
+              </Banner>
             </div>
           )}
+
+          {!reviewDismissed && (
+            <div style={{ marginBottom: "2rem" }}>
+              <Banner 
+                tone="info" 
+                onDismiss={() => {
+                  setReviewDismissed(true);
+                  localStorage.setItem("loom_review_dismissed", "true");
+                }}
+              >
+                 <p>Enjoying Loom? We'd love it if you could <a href="https://apps.shopify.com/adloom-offer-sales#reviews" target="_blank" rel="noopener noreferrer">leave us a review</a> on the Shopify App Store. Your feedback helps us build better tools for you!</p>
+              </Banner>
+            </div>
+          )}
+
+          <div style={{ marginBottom: "2rem" }}>
+             <Card>
+                <BlockStack gap="400">
+                   <Text as="h2" variant="headingMd" fontWeight="bold">Quick Actions</Text>
+                   <InlineStack gap="300">
+                      <Button variant="primary" onClick={() => navigate("/app/sales/new")}>Create Sale</Button>
+                      <Button onClick={() => navigate("/app/timers/new")}>Create Timer</Button>
+                      <Button onClick={() => navigate("/app/coupons/new")}>Create Offer</Button>
+                   </InlineStack>
+                </BlockStack>
+             </Card>
+          </div>
+
+          <SetupGuide />
 
           <div className="animate-fade-in-up stagger-2">
             <BlockStack gap="400">
