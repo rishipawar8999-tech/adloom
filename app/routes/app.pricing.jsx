@@ -82,6 +82,11 @@ export async function action({ request }) {
   try {
     const { trialDaysRemaining, hasEverPurchased } = await getPlan(request);
     
+    // Trial override logic:
+    // - New merchants (hasEverPurchased=false): leave trialDays undefined so
+    //   Shopify applies the default 3-day trial from shopify.server.js config.
+    // - Returning merchants (hasEverPurchased=true): explicitly set trialDays
+    //   to 0 (or remaining days if still trialing) to prevent re-trialing.
     let trialDays = undefined;
     if (hasEverPurchased) {
       trialDays = Math.max(0, trialDaysRemaining);

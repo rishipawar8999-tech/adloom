@@ -52,8 +52,11 @@ export async function getPlanWithAdmin(admin) {
       currentPeriodEnd = activeSub.currentPeriodEnd;
 
       // Check if currently in trial
-      if (activeSub.trialDays > 0 && activeSub.currentPeriodEnd) {
-        const trialEnd = new Date(activeSub.currentPeriodEnd);
+      // trialEnd = createdAt + trialDays (NOT currentPeriodEnd, which is the
+      // end of the full billing cycle and would over-count by ~30 days).
+      if (activeSub.trialDays > 0 && activeSub.createdAt) {
+        const trialEnd = new Date(activeSub.createdAt);
+        trialEnd.setDate(trialEnd.getDate() + activeSub.trialDays);
         const now = new Date();
         trialDaysRemaining = Math.max(0, Math.ceil((trialEnd - now) / 86400000));
       }
